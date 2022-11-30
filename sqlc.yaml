@@ -1,0 +1,14 @@
+version: "2"
+sql:
+  - schema: "./pkgs/database/sql/user"
+    queries: "./pkgs/database/sql/user"
+    engine: "mysql"
+    gen:
+      go:
+        package: "user"
+        out: "./pkgs/database/sqlc/user"
+        emit_prepared_queries: true
+
+        overrides:
+          - column: "users.id"
+            go_type: "github.com/google/uuid.UUID"
