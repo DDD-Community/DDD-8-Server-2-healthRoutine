@@ -9,9 +9,11 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID
-	Username  string
-	Email     string
-	Password  string
-	CreatedAt int64
+	ID         uuid.UUID
+	Nickname   string
+	Email      string
+	Password   string
+	ProfileImg string
+	CreatedAt  int64
+	UpdatedAt  int64
 }

@@ -24,17 +24,25 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
-	if q.testStmt, err = db.PrepareContext(ctx, test); err != nil {
-		return nil, fmt.Errorf("error preparing query Test: %w", err)
+	if q.createStmt, err = db.PrepareContext(ctx, create); err != nil {
+		return nil, fmt.Errorf("error preparing query Create: %w", err)
+	}
+	if q.getByEmailStmt, err = db.PrepareContext(ctx, getByEmail); err != nil {
+		return nil, fmt.Errorf("error preparing query GetByEmail: %w", err)
 	}
 	return &q, nil
 }
 
 func (q *Queries) Close() error {
 	var err error
-	if q.testStmt != nil {
-		if cerr := q.testStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing testStmt: %w", cerr)
+	if q.createStmt != nil {
+		if cerr := q.createStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createStmt: %w", cerr)
+		}
+	}
+	if q.getByEmailStmt != nil {
+		if cerr := q.getByEmailStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getByEmailStmt: %w", cerr)
 		}
 	}
 	return err
@@ -74,15 +82,17 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db       DBTX
-	tx       *sql.Tx
-	testStmt *sql.Stmt
+	db             DBTX
+	tx             *sql.Tx
+	createStmt     *sql.Stmt
+	getByEmailStmt *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:       tx,
-		tx:       tx,
-		testStmt: q.testStmt,
+		db:             tx,
+		tx:             tx,
+		createStmt:     q.createStmt,
+		getByEmailStmt: q.getByEmailStmt,
 	}
 }

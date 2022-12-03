@@ -5,7 +5,8 @@ import (
 )
 
 type ConfigType struct {
-	DBConn string `mapstructure:"db_conn"`
+	DBConn        string `mapstructure:"db_conn"`
+	SigningSecret string `mapstructure:"signing_secret"`
 }
 
 func LoadConfig() (config ConfigType) {

@@ -7,37 +7,53 @@ package user
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
-const test = `-- name: Test :many
-SELECT id, username, email, password, created_at FROM users
+const create = `-- name: Create :exec
+INSERT INTO users (id, nickname, email, password, profile_img, created_at, updated_at) VALUES (?,?,?,?,?,?,?)
 `
 
-func (q *Queries) Test(ctx context.Context) ([]User, error) {
-	rows, err := q.query(ctx, q.testStmt, test)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []User
-	for rows.Next() {
-		var i User
-		if err := rows.Scan(
-			&i.ID,
-			&i.Username,
-			&i.Email,
-			&i.Password,
-			&i.CreatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+type CreateParams struct {
+	ID         uuid.UUID
+	Nickname   string
+	Email      string
+	Password   string
+	ProfileImg string
+	CreatedAt  int64
+	UpdatedAt  int64
+}
+
+func (q *Queries) Create(ctx context.Context, arg CreateParams) error {
+	_, err := q.exec(ctx, q.createStmt, create,
+		arg.ID,
+		arg.Nickname,
+		arg.Email,
+		arg.Password,
+		arg.ProfileImg,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+	)
+	return err
+}
+
+const getByEmail = `-- name: GetByEmail :one
+SELECT id, nickname, email, password, profile_img, created_at, updated_at from users
+WHERE email = ?
+`
+
+func (q *Queries) GetByEmail(ctx context.Context, email string) (User, error) {
+	row := q.queryRow(ctx, q.getByEmailStmt, getByEmail, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Nickname,
+		&i.Email,
+		&i.Password,
+		&i.ProfileImg,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
