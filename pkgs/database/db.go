@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
+	"time"
 )
 
 func GetDB(dbSource string) *sql.DB {
@@ -17,6 +18,6 @@ func GetDB(dbSource string) *sql.DB {
 	poolCount := 15
 	db.SetMaxIdleConns(poolCount)
 	db.SetMaxOpenConns(poolCount)
-
+	db.SetConnMaxLifetime(time.Minute * 3)
 	return db
 }
