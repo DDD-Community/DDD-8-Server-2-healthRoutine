@@ -2,8 +2,6 @@ package usecase
 
 import (
 	"context"
-	"database/sql"
-	"fmt"
 	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 	"healthRoutine/application/domain/user"
@@ -26,8 +24,8 @@ type signInUseCaseImpl struct {
 func (u *signInUseCaseImpl) Use(ctx context.Context, email, password string) (newToken string, err error) {
 	config := cmd.LoadConfig()
 	resp, err := u.Repository.GetByEmail(ctx, email)
-	if err != nil || err == sql.ErrNoRows {
-		panic(err)
+	if err != nil {
+		return "", err
 	}
 
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -39,13 +37,12 @@ func (u *signInUseCaseImpl) Use(ctx context.Context, email, password string) (ne
 
 	newToken, err = token.SignedString([]byte(config.SigningSecret))
 	if err != nil {
-		panic(err)
+		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(resp.Password), []byte(password))
 	if err != nil {
-		fmt.Println("hash err")
-		panic(err)
+		return
 	}
 
 	return

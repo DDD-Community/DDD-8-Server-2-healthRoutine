@@ -1,11 +1,14 @@
 package controller
 
 import (
-	"fmt"
+	"database/sql"
 	"github.com/gofiber/fiber/v2"
+	"golang.org/x/crypto/bcrypt"
 	"healthRoutine/application/domain/user"
 	"healthRoutine/application/user/usecase"
+	"healthRoutine/pkgs/errors/response"
 	"healthRoutine/pkgs/util"
+	"log"
 	"net/http"
 )
 
@@ -13,7 +16,6 @@ type Handler struct {
 	useCase usecase.UseCases
 }
 
-// TODO: open api 3.0
 func (h *Handler) signUp(c *fiber.Ctx) error {
 	var binder struct {
 		Nickname string `json:"nickname" xml:"-"`
@@ -26,11 +28,13 @@ func (h *Handler) signUp(c *fiber.Ctx) error {
 
 	// TODO: need to apply logger
 	if !util.CheckEmailRegex(binder.Email) {
-		fmt.Println("not match regex")
+		err := response.ErrInvalidEmail
+		return response.ErrorResponse(c, err, nil)
 	}
 
 	if !util.CheckPassword(binder.Password) {
-		fmt.Println("not match regex")
+		err := response.ErrInvalidPassword
+		return response.ErrorResponse(c, err, nil)
 	}
 
 	err := h.useCase.SignUpUseCase.Use(c.Context(), user.SignUpParams{
@@ -39,7 +43,9 @@ func (h *Handler) signUp(c *fiber.Ctx) error {
 		Email:    binder.Email,
 	})
 	if err != nil {
-		panic(err) // not panic need return
+		return response.ErrorResponse(c, err, func(err error) {
+			log.Print("failed to sign up")
+		})
 	}
 
 	return c.Status(http.StatusCreated).Send(nil)
@@ -51,12 +57,21 @@ func (h *Handler) signIn(c *fiber.Ctx) error {
 		Password string `json:"password" xml:"-"`
 	}
 	if err := c.BodyParser(&binder); err != nil {
-		return err
+		return response.ErrorResponse(c, err, nil)
 	}
 
 	resp, err := h.useCase.SignInUseCase.Use(c.Context(), binder.Email, binder.Password)
-	if err != nil {
-		fmt.Println("resp err")
+	switch {
+	case err == sql.ErrNoRows:
+		err = response.ErrNotFoundUser
+		return response.ErrorResponse(c, err, nil)
+	case err == bcrypt.ErrMismatchedHashAndPassword:
+		err = response.ErrWrongPassword
+		return response.ErrorResponse(c, err, nil)
+	case err != nil:
+		return response.ErrorResponse(c, err, func(err error) {
+			log.Print("failed to sign in")
+		})
 	}
 
 	return c.Status(http.StatusOK).JSON(map[string]string{
