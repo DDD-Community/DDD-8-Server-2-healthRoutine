@@ -24,6 +24,12 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
+	if q.checkExistsByEmailStmt, err = db.PrepareContext(ctx, checkExistsByEmail); err != nil {
+		return nil, fmt.Errorf("error preparing query CheckExistsByEmail: %w", err)
+	}
+	if q.checkExistsByNicknameStmt, err = db.PrepareContext(ctx, checkExistsByNickname); err != nil {
+		return nil, fmt.Errorf("error preparing query CheckExistsByNickname: %w", err)
+	}
 	if q.createStmt, err = db.PrepareContext(ctx, create); err != nil {
 		return nil, fmt.Errorf("error preparing query Create: %w", err)
 	}
@@ -35,6 +41,16 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 
 func (q *Queries) Close() error {
 	var err error
+	if q.checkExistsByEmailStmt != nil {
+		if cerr := q.checkExistsByEmailStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing checkExistsByEmailStmt: %w", cerr)
+		}
+	}
+	if q.checkExistsByNicknameStmt != nil {
+		if cerr := q.checkExistsByNicknameStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing checkExistsByNicknameStmt: %w", cerr)
+		}
+	}
 	if q.createStmt != nil {
 		if cerr := q.createStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createStmt: %w", cerr)
@@ -82,17 +98,21 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db             DBTX
-	tx             *sql.Tx
-	createStmt     *sql.Stmt
-	getByEmailStmt *sql.Stmt
+	db                        DBTX
+	tx                        *sql.Tx
+	checkExistsByEmailStmt    *sql.Stmt
+	checkExistsByNicknameStmt *sql.Stmt
+	createStmt                *sql.Stmt
+	getByEmailStmt            *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:             tx,
-		tx:             tx,
-		createStmt:     q.createStmt,
-		getByEmailStmt: q.getByEmailStmt,
+		db:                        tx,
+		tx:                        tx,
+		checkExistsByEmailStmt:    q.checkExistsByEmailStmt,
+		checkExistsByNicknameStmt: q.checkExistsByNicknameStmt,
+		createStmt:                q.createStmt,
+		getByEmailStmt:            q.getByEmailStmt,
 	}
 }

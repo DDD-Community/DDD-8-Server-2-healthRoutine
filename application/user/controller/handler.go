@@ -27,7 +27,7 @@ func (h *Handler) signUp(c *fiber.Ctx) error {
 	}
 
 	// TODO: need to apply logger
-	if !util.CheckEmailRegex(binder.Email) {
+	if !util.CheckEmail(binder.Email) {
 		err := response.ErrInvalidEmail
 		return response.ErrorResponse(c, err, nil)
 	}
@@ -42,7 +42,14 @@ func (h *Handler) signUp(c *fiber.Ctx) error {
 		Password: binder.Password,
 		Email:    binder.Email,
 	})
-	if err != nil {
+	switch {
+	case err == user.ErrEmailAlreadyExists:
+		err = response.ErrEmailAlreadyExist
+		return response.ErrorResponse(c, err, nil)
+	case err == user.ErrNicknameAlreadyExists:
+		err = response.ErrNicknameAlreadyExist
+		return response.ErrorResponse(c, err, nil)
+	case err != nil:
 		return response.ErrorResponse(c, err, func(err error) {
 			log.Print("failed to sign up")
 		})

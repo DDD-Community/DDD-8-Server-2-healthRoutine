@@ -5,7 +5,7 @@ import (
 	"unicode"
 )
 
-func CheckEmailRegex(email string) (result bool) {
+func CheckEmail(email string) (result bool) {
 	result, _ = regexp.MatchString("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$", email)
 	return
 }
@@ -47,7 +47,7 @@ func CheckPassword(password string) bool {
 	if !hasSpecial {
 		return false
 	}
-	
+
 	return true
 }
 

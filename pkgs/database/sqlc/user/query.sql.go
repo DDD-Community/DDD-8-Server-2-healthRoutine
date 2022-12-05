@@ -11,6 +11,34 @@ import (
 	"github.com/google/uuid"
 )
 
+const checkExistsByEmail = `-- name: CheckExistsByEmail :one
+SELECT EXISTS(
+    SELECT id, nickname, email, password, profile_img, created_at, updated_at FROM users
+    WHERE email = ?
+           ) AS isExist
+`
+
+func (q *Queries) CheckExistsByEmail(ctx context.Context, email string) (bool, error) {
+	row := q.queryRow(ctx, q.checkExistsByEmailStmt, checkExistsByEmail, email)
+	var isexist bool
+	err := row.Scan(&isexist)
+	return isexist, err
+}
+
+const checkExistsByNickname = `-- name: CheckExistsByNickname :one
+SELECT EXISTS(
+   SELECT id, nickname, email, password, profile_img, created_at, updated_at FROM users
+   WHERE nickname = ?
+           ) AS isExsist
+`
+
+func (q *Queries) CheckExistsByNickname(ctx context.Context, nickname string) (bool, error) {
+	row := q.queryRow(ctx, q.checkExistsByNicknameStmt, checkExistsByNickname, nickname)
+	var isexsist bool
+	err := row.Scan(&isexsist)
+	return isexsist, err
+}
+
 const create = `-- name: Create :exec
 INSERT INTO users (id, nickname, email, password, profile_img, created_at, updated_at) VALUES (?,?,?,?,?,?,?)
 `

@@ -59,3 +59,11 @@ func (r *repo) GetByEmail(ctx context.Context, email string) (*user.DomainModel,
 		User: resp,
 	}, err
 }
+
+func (r *repo) CheckExistsByEmail(ctx context.Context, email string) (bool, error) {
+	return r.preparedQuery.CheckExistsByEmail(ctx, email)
+}
+
+func (r *repo) CheckExistsByNickname(ctx context.Context, nickname string) (bool, error) {
+	return r.preparedQuery.CheckExistsByNickname(ctx, nickname)
+}
