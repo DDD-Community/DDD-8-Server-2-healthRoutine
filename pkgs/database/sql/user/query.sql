@@ -9,10 +9,10 @@ WHERE email = ?;
 SELECT EXISTS(
     SELECT * FROM users
     WHERE email = ?
-           ) AS isExist;
+           ) AS isExists;
 
 -- name: CheckExistsByNickname :one
 SELECT EXISTS(
    SELECT * FROM users
    WHERE nickname = ?
-           ) AS isExsist;
+           ) AS isExists;

@@ -15,28 +15,28 @@ const checkExistsByEmail = `-- name: CheckExistsByEmail :one
 SELECT EXISTS(
     SELECT id, nickname, email, password, profile_img, created_at, updated_at FROM users
     WHERE email = ?
-           ) AS isExist
+           ) AS isExists
 `
 
 func (q *Queries) CheckExistsByEmail(ctx context.Context, email string) (bool, error) {
 	row := q.queryRow(ctx, q.checkExistsByEmailStmt, checkExistsByEmail, email)
-	var isexist bool
-	err := row.Scan(&isexist)
-	return isexist, err
+	var isexists bool
+	err := row.Scan(&isexists)
+	return isexists, err
 }
 
 const checkExistsByNickname = `-- name: CheckExistsByNickname :one
 SELECT EXISTS(
    SELECT id, nickname, email, password, profile_img, created_at, updated_at FROM users
    WHERE nickname = ?
-           ) AS isExsist
+           ) AS isExists
 `
 
 func (q *Queries) CheckExistsByNickname(ctx context.Context, nickname string) (bool, error) {
 	row := q.queryRow(ctx, q.checkExistsByNicknameStmt, checkExistsByNickname, nickname)
-	var isexsist bool
-	err := row.Scan(&isexsist)
-	return isexsist, err
+	var isexists bool
+	err := row.Scan(&isexists)
+	return isexists, err
 }
 
 const create = `-- name: Create :exec
