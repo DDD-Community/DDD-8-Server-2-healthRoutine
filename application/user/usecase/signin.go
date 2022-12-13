@@ -6,6 +6,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"healthRoutine/application/domain/user"
 	"healthRoutine/cmd"
+	"healthRoutine/pkgs/log"
 	"time"
 )
 
@@ -22,6 +23,9 @@ type signInUseCaseImpl struct {
 }
 
 func (u *signInUseCaseImpl) Use(ctx context.Context, email, password string) (newToken string, err error) {
+	logger := log.Get()
+	defer logger.Sync()
+
 	config := cmd.LoadConfig()
 	resp, err := u.Repository.GetByEmail(ctx, email)
 	if err != nil {
@@ -37,11 +41,13 @@ func (u *signInUseCaseImpl) Use(ctx context.Context, email, password string) (ne
 
 	newToken, err = token.SignedString([]byte(config.SigningSecret))
 	if err != nil {
+		logger.Named(named).Error(err)
 		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(resp.Password), []byte(password))
 	if err != nil {
+		logger.Named(named).Error(err)
 		return
 	}
 

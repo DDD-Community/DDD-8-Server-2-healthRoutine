@@ -18,7 +18,6 @@ type signUpUseCaseImpl struct {
 }
 
 func (u *signUpUseCaseImpl) Use(ctx context.Context, params user.SignUpParams) (err error) {
-
 	emailExists, err := u.Repository.CheckExistsByEmail(ctx, params.Email)
 	if emailExists {
 		err = user.ErrEmailAlreadyExists

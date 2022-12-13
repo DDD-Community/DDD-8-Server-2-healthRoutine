@@ -7,9 +7,13 @@ import (
 	"healthRoutine/application/domain/user"
 	"healthRoutine/application/user/usecase"
 	"healthRoutine/pkgs/errors/response"
+	"healthRoutine/pkgs/log"
 	"healthRoutine/pkgs/util"
-	"log"
 	"net/http"
+)
+
+const (
+	named = "USER_CONTROLLER"
 )
 
 type Handler struct {
@@ -17,6 +21,9 @@ type Handler struct {
 }
 
 func (h *Handler) signUp(c *fiber.Ctx) error {
+	logger := log.Get()
+	defer logger.Sync()
+
 	var binder struct {
 		Nickname string `json:"nickname" xml:"-"`
 		Email    string `json:"email" xml:"-"`
@@ -25,15 +32,18 @@ func (h *Handler) signUp(c *fiber.Ctx) error {
 	if err := c.BodyParser(&binder); err != nil {
 		return err
 	}
-
-	// TODO: need to apply logger
+	
 	if !util.CheckEmail(binder.Email) {
 		err := response.ErrInvalidEmail
+		logger.Named(named).Error("failed to check email")
+		logger.Named(named).Error(err)
 		return response.ErrorResponse(c, err, nil)
 	}
 
 	if !util.CheckPassword(binder.Password) {
 		err := response.ErrInvalidPassword
+		logger.Named(named).Error("failed to check password")
+		logger.Named(named).Error(err)
 		return response.ErrorResponse(c, err, nil)
 	}
 
@@ -51,7 +61,7 @@ func (h *Handler) signUp(c *fiber.Ctx) error {
 		return response.ErrorResponse(c, err, nil)
 	case err != nil:
 		return response.ErrorResponse(c, err, func(err error) {
-			log.Print("failed to sign up")
+			logger.Named(named).Error("failed to sign up")
 		})
 	}
 
@@ -59,6 +69,9 @@ func (h *Handler) signUp(c *fiber.Ctx) error {
 }
 
 func (h *Handler) signIn(c *fiber.Ctx) error {
+	logger := log.Get()
+	defer logger.Sync()
+
 	var binder struct {
 		Email    string `json:"email" xml:"-"`
 		Password string `json:"password" xml:"-"`
@@ -77,7 +90,7 @@ func (h *Handler) signIn(c *fiber.Ctx) error {
 		return response.ErrorResponse(c, err, nil)
 	case err != nil:
 		return response.ErrorResponse(c, err, func(err error) {
-			log.Print("failed to sign in")
+			logger.Named(named).Error("failed to sign in")
 		})
 	}
 
