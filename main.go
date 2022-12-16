@@ -17,8 +17,9 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 
 	useCase := usecase.UseCases{
-		SignUpUseCase: usecase.SignUpUseCase(userRepo),
-		SignInUseCase: usecase.SignInUseCase(userRepo),
+		SignUpUseCase:          usecase.SignUpUseCase(userRepo),
+		SignInUseCase:          usecase.SignInUseCase(userRepo),
+		EmailValidationUseCase: usecase.EmailValidationUseCase(userRepo),
 	}
 
 	controller.BindHandler(app, useCase)

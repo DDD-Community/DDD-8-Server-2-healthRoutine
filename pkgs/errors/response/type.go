@@ -15,7 +15,7 @@ func NewErrorResponse(status int, msg string) error {
 }
 
 type errorResponse struct {
-	Status  int
+	Status  int    `json:"code"`
 	Message string `json:"message"`
 }
 
@@ -25,7 +25,8 @@ func (e *errorResponse) Error() string {
 }
 
 func InternalServerError(c *fiber.Ctx) error {
-	return c.Status(http.StatusInternalServerError).JSON(map[string]string{
+	return c.Status(http.StatusInternalServerError).JSON(map[string]interface{}{
+		"code":    http.StatusInternalServerError,
 		"message": "internal server error",
 	})
 }
@@ -33,7 +34,8 @@ func InternalServerError(c *fiber.Ctx) error {
 func ErrorResponse(c *fiber.Ctx, err error, hook func(error)) error {
 	var response *errorResponse
 	if errors.As(err, &response) {
-		return c.Status(response.Status).JSON(map[string]string{
+		return c.Status(response.Status).JSON(map[string]interface{}{
+			"code":    response.Status,
 			"message": response.Message,
 		})
 	}

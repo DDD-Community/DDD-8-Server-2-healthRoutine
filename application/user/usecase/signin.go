@@ -22,14 +22,14 @@ type signInUseCaseImpl struct {
 	user.Repository
 }
 
-func (u *signInUseCaseImpl) Use(ctx context.Context, email, password string) (newToken string, err error) {
+func (u *signInUseCaseImpl) Use(ctx context.Context, email, password string) (resp *user.DomainModel, newToken string, err error) {
 	logger := log.Get()
 	defer logger.Sync()
 
 	config := cmd.LoadConfig()
-	resp, err := u.Repository.GetByEmail(ctx, email)
+	resp, err = u.Repository.GetByEmail(ctx, email)
 	if err != nil {
-		return "", err
+		return
 	}
 
 	token := jwt.New(jwt.SigningMethodHS256)

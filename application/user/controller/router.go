@@ -12,6 +12,7 @@ func BindHandler(app *fiber.App, cases usecase.UseCases) {
 
 	api := app.Group("api/v1")
 
-	api.Post("user/register", handler.signUp)
-	api.Post("user/login", handler.signIn)
+	api.Post("/user/register", handler.signUp)
+	api.Post("/user/login", handler.signIn)
+	api.Post("/user/validate/email", handler.checkEmailValidation)
 }

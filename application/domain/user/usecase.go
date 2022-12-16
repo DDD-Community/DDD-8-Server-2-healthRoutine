@@ -9,9 +9,13 @@ type SignUpParams struct {
 }
 
 type SignUpUseCase interface {
-	Use(ctx context.Context, params SignUpParams) error
+	Use(ctx context.Context, params SignUpParams) (*DomainModel, error)
 }
 
 type SignInUseCase interface {
-	Use(ctx context.Context, email, password string) (string, error)
+	Use(ctx context.Context, email, password string) (*DomainModel, string, error)
+}
+
+type EmailValidationUseCase interface {
+	Use(ctx context.Context, email string) error
 }

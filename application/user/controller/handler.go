@@ -24,6 +24,11 @@ func (h *Handler) signUp(c *fiber.Ctx) error {
 	logger := log.Get()
 	defer logger.Sync()
 
+	type Result struct {
+		Email    string `json:"email"`
+		Nickname string `json:"nickname"`
+	}
+
 	var binder struct {
 		Nickname string `json:"nickname" xml:"-"`
 		Email    string `json:"email" xml:"-"`
@@ -32,7 +37,7 @@ func (h *Handler) signUp(c *fiber.Ctx) error {
 	if err := c.BodyParser(&binder); err != nil {
 		return err
 	}
-	
+
 	if !util.CheckEmail(binder.Email) {
 		err := response.ErrInvalidEmail
 		logger.Named(named).Error("failed to check email")
@@ -47,7 +52,7 @@ func (h *Handler) signUp(c *fiber.Ctx) error {
 		return response.ErrorResponse(c, err, nil)
 	}
 
-	err := h.useCase.SignUpUseCase.Use(c.Context(), user.SignUpParams{
+	resp, err := h.useCase.SignUpUseCase.Use(c.Context(), user.SignUpParams{
 		Nickname: binder.Nickname,
 		Password: binder.Password,
 		Email:    binder.Email,
@@ -65,12 +70,27 @@ func (h *Handler) signUp(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(http.StatusCreated).Send(nil)
+	result := Result{
+		Email:    resp.Email,
+		Nickname: resp.Nickname,
+	}
+
+	return c.Status(http.StatusCreated).JSON(map[string]interface{}{
+		"status":  "created",
+		"code":    http.StatusCreated,
+		"message": "successfully created",
+		"result":  result,
+	})
 }
 
 func (h *Handler) signIn(c *fiber.Ctx) error {
 	logger := log.Get()
 	defer logger.Sync()
+
+	type Result struct {
+		Email    string `json:"email"`
+		Nickname string `json:"nickname"`
+	}
 
 	var binder struct {
 		Email    string `json:"email" xml:"-"`
@@ -80,7 +100,7 @@ func (h *Handler) signIn(c *fiber.Ctx) error {
 		return response.ErrorResponse(c, err, nil)
 	}
 
-	resp, err := h.useCase.SignInUseCase.Use(c.Context(), binder.Email, binder.Password)
+	resp, token, err := h.useCase.SignInUseCase.Use(c.Context(), binder.Email, binder.Password)
 	switch {
 	case err == sql.ErrNoRows:
 		err = response.ErrNotFoundUser
@@ -94,7 +114,45 @@ func (h *Handler) signIn(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(http.StatusOK).JSON(map[string]string{
-		"token": resp,
+	result := Result{
+		Email:    resp.Email,
+		Nickname: resp.Nickname,
+	}
+
+	return c.Status(http.StatusOK).JSON(map[string]interface{}{
+		"status":  "ok",
+		"code":    http.StatusOK,
+		"message": "success",
+		"token":   token,
+		"result":  result,
+	})
+}
+
+func (h *Handler) checkEmailValidation(c *fiber.Ctx) error {
+	logger := log.Get()
+	defer logger.Sync()
+
+	var binder struct {
+		Email string `json:"email" xml:"-"`
+	}
+	if err := c.BodyParser(&binder); err != nil {
+		return response.ErrorResponse(c, err, nil)
+	}
+
+	err := h.useCase.EmailValidationUseCase.Use(c.Context(), binder.Email)
+	switch {
+	case err == user.ErrEmailAlreadyExists:
+		err = response.ErrEmailAlreadyExist
+		return response.ErrorResponse(c, err, nil)
+	case err != nil:
+		return response.ErrorResponse(c, err, func(err error) {
+			logger.Named(named).Error("failed to check email validation")
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(map[string]interface{}{
+		"status":  "ok",
+		"code":    http.StatusOK,
+		"message": "success",
 	})
 }

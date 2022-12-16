@@ -11,4 +11,5 @@ const (
 type UseCases struct {
 	user.SignUpUseCase
 	user.SignInUseCase
+	user.EmailValidationUseCase
 }
