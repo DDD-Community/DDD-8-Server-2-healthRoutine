@@ -29,6 +29,7 @@ type updateProfileUseCaseImpl struct {
 func (u *updateProfileUseCaseImpl) log() *zap.SugaredLogger {
 	return log.Get().Named("UPDATE_PROFILE_IMG_USE_CASE")
 }
+
 func (u *updateProfileUseCaseImpl) Use(ctx context.Context, params user.UpdateProfileParams) (err error) {
 	logger := u.log()
 	defer logger.Sync()

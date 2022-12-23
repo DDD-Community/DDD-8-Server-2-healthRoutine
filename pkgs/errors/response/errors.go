@@ -13,4 +13,7 @@ var (
 	ErrEmailAlreadyExist    = NewErrorResponse(http.StatusConflict, "email already exists")
 	ErrNicknameAlreadyExist = NewErrorResponse(http.StatusConflict, "nickname already exists")
 	ErrInvalidContentType   = NewErrorResponse(http.StatusUnsupportedMediaType, "invalid content type")
+
+	ErrCharacterLimit = NewErrorResponse(http.StatusBadRequest, "20 character limit error")
+	ErrNotMatchUserId = NewErrorResponse(http.StatusBadRequest, "user id doesn't match")
 )

@@ -1,8 +1,25 @@
 package user
 
-import "errors"
-
 var (
-	ErrEmailAlreadyExists    = errors.New("email already exists")
-	ErrNicknameAlreadyExists = errors.New("nickname already exists")
+	ErrEmailAlreadyExists    error = &errEmailAlreadyExists{}
+	ErrNicknameAlreadyExists error = &errNicknameAlreadyExists{}
+	ErrUserNotFound          error = &errUserNotFound{}
 )
+
+type errEmailAlreadyExists struct{}
+
+func (e *errEmailAlreadyExists) Error() string {
+	return "email already exists"
+}
+
+type errNicknameAlreadyExists struct{}
+
+func (e *errNicknameAlreadyExists) Error() string {
+	return "nickname already exists"
+}
+
+type errUserNotFound struct{}
+
+func (e *errUserNotFound) Error() string {
+	return "user not found"
+}

@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"github.com/golang-jwt/jwt"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"healthRoutine/application/domain/user"
 	"healthRoutine/cmd"
@@ -22,8 +23,12 @@ type signInUseCaseImpl struct {
 	user.Repository
 }
 
+func (u *signInUseCaseImpl) log() *zap.SugaredLogger {
+	return log.Get().Named("SIGN_IN_USE_CASE")
+}
+
 func (u *signInUseCaseImpl) Use(ctx context.Context, email, password string) (resp *user.DomainModel, newToken string, err error) {
-	logger := log.Get()
+	logger := u.log()
 	defer logger.Sync()
 
 	config := cmd.LoadConfig()
@@ -41,13 +46,13 @@ func (u *signInUseCaseImpl) Use(ctx context.Context, email, password string) (re
 
 	newToken, err = token.SignedString([]byte(config.SigningSecret))
 	if err != nil {
-		logger.Named(named).Error(err)
+		logger.Error(err)
 		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(resp.Password), []byte(password))
 	if err != nil {
-		logger.Named(named).Error(err)
+		logger.Error(err)
 		return
 	}
 

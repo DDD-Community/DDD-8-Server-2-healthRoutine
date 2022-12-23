@@ -2,7 +2,9 @@ package controller
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/gofiber/fiber/v2"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"healthRoutine/application/domain/user"
 	"healthRoutine/application/user/usecase"
@@ -14,38 +16,39 @@ import (
 	"strings"
 )
 
-const (
-	named = "USER_CONTROLLER"
-)
-
 type Handler struct {
-	useCase usecase.UseCases
+	useCase usecase.UserUseCases
+}
+
+func (*Handler) log() *zap.SugaredLogger {
+	return log.Get().Named("USER_CONTROLLER")
 }
 
 func (h *Handler) signUp(c *fiber.Ctx) error {
-	logger := log.Get()
+	logger := h.log()
 	defer logger.Sync()
 
 	var binder struct {
-		Nickname string `json:"nickname" xml:"-"`
-		Email    string `json:"email" xml:"-"`
-		Password string `json:"password" xml:"-"`
+		Nickname string `json:"nickname" xml:"-" validate:"required"`
+		Email    string `json:"email" xml:"-" validate:"required"`
+		Password string `json:"password" xml:"-" validate:"required"`
 	}
+
 	if err := c.BodyParser(&binder); err != nil {
 		return err
 	}
 
 	if !util.CheckEmail(binder.Email) {
 		err := response.ErrInvalidEmail
-		logger.Named(named).Error("failed to check email")
-		logger.Named(named).Error(err)
+		logger.Error("failed to check email")
+		logger.Error(err)
 		return response.ErrorResponse(c, err, nil)
 	}
 
 	if !util.CheckPassword(binder.Password) {
 		err := response.ErrInvalidPassword
-		logger.Named(named).Error("failed to check password")
-		logger.Named(named).Error(err)
+		logger.Error("failed to check password")
+		logger.Error(err)
 		return response.ErrorResponse(c, err, nil)
 	}
 
@@ -55,15 +58,15 @@ func (h *Handler) signUp(c *fiber.Ctx) error {
 		Email:    binder.Email,
 	})
 	switch {
-	case err == user.ErrEmailAlreadyExists:
+	case errors.Is(err, user.ErrEmailAlreadyExists):
 		err = response.ErrEmailAlreadyExist
 		return response.ErrorResponse(c, err, nil)
-	case err == user.ErrNicknameAlreadyExists:
+	case errors.Is(err, user.ErrEmailAlreadyExists):
 		err = response.ErrNicknameAlreadyExist
 		return response.ErrorResponse(c, err, nil)
 	case err != nil:
 		return response.ErrorResponse(c, err, func(err error) {
-			logger.Named(named).Error("failed to sign up")
+			logger.Error("failed to sign up")
 		})
 	}
 
@@ -75,9 +78,10 @@ func (h *Handler) signIn(c *fiber.Ctx) error {
 	defer logger.Sync()
 
 	var binder struct {
-		Email    string `json:"email" xml:"-"`
-		Password string `json:"password" xml:"-"`
+		Email    string `json:"email" xml:"-" validate:"required"`
+		Password string `json:"password" xml:"-" validate:"required"`
 	}
+
 	if err := c.BodyParser(&binder); err != nil {
 		return response.ErrorResponse(c, err, nil)
 	}
@@ -92,7 +96,7 @@ func (h *Handler) signIn(c *fiber.Ctx) error {
 		return response.ErrorResponse(c, err, nil)
 	case err != nil:
 		return response.ErrorResponse(c, err, func(err error) {
-			logger.Named(named).Error("failed to sign in")
+			logger.Error("failed to sign in")
 		})
 	}
 
@@ -106,7 +110,11 @@ func (h *Handler) checkEmailValidation(c *fiber.Ctx) error {
 	defer logger.Sync()
 
 	var binder struct {
-		Email string `json:"email" xml:"-"`
+		Email string `json:"email" xml:"-" validate:"required"`
+	}
+	validateErrors := util.ValidateStruct(&binder) // TODO: validator 분리 필요
+	if validateErrors != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(validateErrors)
 	}
 	if err := c.BodyParser(&binder); err != nil {
 		return response.ErrorResponse(c, err, nil)
@@ -114,12 +122,12 @@ func (h *Handler) checkEmailValidation(c *fiber.Ctx) error {
 
 	err := h.useCase.EmailValidationUseCase.Use(c.Context(), binder.Email)
 	switch {
-	case err == user.ErrEmailAlreadyExists:
+	case errors.Is(err, user.ErrEmailAlreadyExists):
 		err = response.ErrEmailAlreadyExist
 		return response.ErrorResponse(c, err, nil)
 	case err != nil:
 		return response.ErrorResponse(c, err, func(err error) {
-			logger.Named(named).Error("failed to check email validation")
+			logger.Error("failed to check email validation")
 		})
 	}
 
@@ -142,7 +150,7 @@ func (h *Handler) getProfile(c *fiber.Ctx) error {
 		return response.ErrorResponse(c, err, nil)
 	case err != nil:
 		return response.ErrorResponse(c, err, func(err error) {
-			logger.Named(named).Error("failed to get profile")
+			logger.Error("failed to get profile")
 		})
 	}
 
@@ -162,10 +170,14 @@ func (h *Handler) updateProfile(c *fiber.Ctx) error {
 	}
 
 	var binder struct {
-		Nickname string `json:"nickname" xml:"-"`
+		Nickname string `json:"nickname" xml:"-" validate:"required"`
+	}
+	validateErrors := util.ValidateStruct(&binder)
+	if validateErrors != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(validateErrors)
 	}
 	if err = c.BodyParser(&binder); err != nil {
-		logger.Named(named).Error(err)
+		logger.Error(err)
 		return response.ErrorResponse(c, err, nil)
 	}
 
@@ -174,12 +186,12 @@ func (h *Handler) updateProfile(c *fiber.Ctx) error {
 		Nickname: binder.Nickname,
 	})
 	switch {
-	case err == user.ErrNicknameAlreadyExists:
+	case errors.Is(err, user.ErrNicknameAlreadyExists):
 		err = response.ErrNicknameAlreadyExist
 		return response.ErrorResponse(c, err, nil)
 	case err != nil:
 		return response.ErrorResponse(c, err, func(err error) {
-			logger.Named(named).Error("failed to update nickname")
+			logger.Error("failed to update nickname")
 		})
 	}
 
@@ -198,13 +210,13 @@ func (h *Handler) uploadProfileImg(c *fiber.Ctx) error {
 
 	file, err := c.FormFile("file")
 	if err != nil {
-		logger.Named(named).Error(err)
+		logger.Error(err)
 		return response.ErrorResponse(c, err, nil)
 	}
 
 	src, err := file.Open()
 	if err != nil {
-		logger.Named(named).Error(err)
+		logger.Error(err)
 		return response.ErrorResponse(c, err, nil)
 	}
 
@@ -225,7 +237,7 @@ func (h *Handler) uploadProfileImg(c *fiber.Ctx) error {
 	})
 	if err != nil {
 		return response.ErrorResponse(c, err, func(err error) {
-			logger.Named(named).Error("failed to update profile image")
+			logger.Error("failed to update profile image")
 		})
 	}
 

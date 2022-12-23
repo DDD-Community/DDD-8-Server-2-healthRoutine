@@ -8,6 +8,7 @@ import (
 func getConfig() (c zap.Config) {
 	c = zap.Config{
 		Level:             zap.NewAtomicLevelAt(zap.DebugLevel),
+		Development:       true,
 		DisableCaller:     false,
 		DisableStacktrace: true,
 		Sampling:          nil,

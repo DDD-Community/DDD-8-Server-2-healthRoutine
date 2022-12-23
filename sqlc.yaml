@@ -12,3 +12,22 @@ sql:
         overrides:
           - column: "users.id"
             go_type: "github.com/google/uuid.UUID"
+
+  - schema: "./pkgs/database/sql/exercise"
+    queries: "./pkgs/database/sql/exercise"
+    engine: "mysql"
+    gen:
+      go:
+        package: "exercise"
+        out: "./pkgs/database/sqlc/exercise"
+        emit_prepared_queries: true
+
+        overrides:
+          - column: "health.id"
+            go_type: "github.com/google/uuid.UUID"
+
+          - column: "health.user_id"
+            go_type: "github.com/google/uuid.UUID"
+
+          - column: "exercise.user_id"
+            go_type: "*github.com/google/uuid.UUID"

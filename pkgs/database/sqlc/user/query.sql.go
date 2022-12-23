@@ -106,6 +106,18 @@ func (q *Queries) GetById(ctx context.Context, id uuid.UUID) (User, error) {
 	return i, err
 }
 
+const getNicknameById = `-- name: GetNicknameById :one
+SELECT nickname from users
+WHERE id = ?
+`
+
+func (q *Queries) GetNicknameById(ctx context.Context, id uuid.UUID) (string, error) {
+	row := q.queryRow(ctx, q.getNicknameByIdStmt, getNicknameById, id)
+	var nickname string
+	err := row.Scan(&nickname)
+	return nickname, err
+}
+
 const updateProfileById = `-- name: UpdateProfileById :exec
 UPDATE users
 SET nickname = ?, profile_img = ?, updated_at = ?

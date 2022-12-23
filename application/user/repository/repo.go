@@ -70,6 +70,18 @@ func (r *repo) GetByEmail(ctx context.Context, email string) (*user.DomainModel,
 	}, err
 }
 
+func (r *repo) GetNicknameById(ctx context.Context, userId uuid.UUID) (resp string, err error) {
+	resp, err = r.preparedQuery.GetNicknameById(ctx, userId)
+	switch {
+	case err == sql.ErrNoRows:
+		err = user.ErrUserNotFound
+	case err != nil:
+		return
+	}
+
+	return
+}
+
 func (r *repo) CheckExistsByEmail(ctx context.Context, email string) (bool, error) {
 	return r.preparedQuery.CheckExistsByEmail(ctx, email)
 }

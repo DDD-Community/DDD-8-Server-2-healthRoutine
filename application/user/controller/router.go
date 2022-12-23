@@ -6,12 +6,12 @@ import (
 	"healthRoutine/pkgs/middlewares"
 )
 
-func BindHandler(app *fiber.App, cases usecase.UseCases) {
+func BindUserHandler(app *fiber.App, cases usecase.UserUseCases) {
 	var handler = Handler{
 		useCase: cases,
 	}
 
-	api := app.Group("api/v1")
+	api := app.Group("/api/v1")
 
 	api.Post("/user/register", handler.signUp)
 	api.Post("/user/login", handler.signIn)

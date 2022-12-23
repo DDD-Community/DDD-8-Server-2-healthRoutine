@@ -4,6 +4,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	controller2 "healthRoutine/application/exercise/controller"
+	repository2 "healthRoutine/application/exercise/repository"
+	usecase2 "healthRoutine/application/exercise/usecase"
 	"healthRoutine/application/user/controller"
 	"healthRoutine/application/user/repository"
 	"healthRoutine/application/user/usecase"
@@ -26,9 +29,10 @@ func main() {
 	})
 
 	userRepo := repository.NewUserRepository(db)
+	exerciseRepo := repository2.NewExerciseRepository(db)
 	defaultS3 := s3.NewFromConfig(cmd.GetAWSConfig())
 
-	useCase := usecase.UseCases{
+	userUseCase := usecase.UserUseCases{
 		SignUpUseCase:                 usecase.SignUpUseCase(userRepo),
 		SignInUseCase:                 usecase.SignInUseCase(userRepo),
 		EmailValidationUseCase:        usecase.EmailValidationUseCase(userRepo),
@@ -37,8 +41,19 @@ func main() {
 		UpdateProfileUseCase:          usecase.UpdateProfileUseCase(userRepo, defaultS3),
 	}
 
-	controller.BindHandler(app, useCase)
+	exerciseUseCase := usecase2.ExerciseUseCase{
+		CreateHistoryUseCase:              usecase2.CreateHistoryUseCase(exerciseRepo),
+		CreateExerciseUseCase:             usecase2.CreateExerciseUseCase(exerciseRepo),
+		FetchExerciseByCategoryIdUseCase:  usecase2.FetchExerciseByCategoryIdUseCase(exerciseRepo),
+		FetchCategoriesUseCase:            usecase2.FetchCategoriesUseCase(exerciseRepo),
+		FetchTodayExerciseByUserIdUseCase: usecase2.FetchTodayExerciseByUserIdUseCase(exerciseRepo),
+		FetchByDatetimeUseCase:            usecase2.FetchByDatetimeUseCase(exerciseRepo, userRepo),
+		DeleteExerciseUseCase:             usecase2.DeleteExerciseUseCase(exerciseRepo),
+		DeleteHealthUseCase:               usecase2.DeleteHealthUseCase(exerciseRepo),
+	}
+
+	controller.BindUserHandler(app, userUseCase)
+	controller2.BindExerciseHandler(app, exerciseUseCase)
 
 	app.Listen(addr)
-
 }

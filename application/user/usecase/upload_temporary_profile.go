@@ -29,6 +29,7 @@ type uploadTemporaryProfileUseCaseImpl struct {
 func (u *uploadTemporaryProfileUseCaseImpl) log() *zap.SugaredLogger {
 	return log.Get().Named("UPLOAD_TEMP_PROFILE_USE_CASE")
 }
+
 func (u *uploadTemporaryProfileUseCaseImpl) Use(ctx context.Context, params user.UploadTemporaryProfileParams) (url string, err error) {
 	logger := u.log()
 	defer logger.Sync()

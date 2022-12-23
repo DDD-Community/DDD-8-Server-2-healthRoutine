@@ -1,5 +1,4 @@
-CREATE TABLE users
-(
+CREATE TABLE users (
     id CHAR(36) NOT NULL PRIMARY KEY ,
     nickname VARCHAR(30) NOT NULL ,
     email VARCHAR(100) NOT NULL ,
@@ -9,4 +8,4 @@ CREATE TABLE users
     updated_at BIGINT NOT NULL
 );
 
-CREATE INDEX  users_email_idx ON users (email);
+CREATE INDEX users_email_idx ON users (email);
