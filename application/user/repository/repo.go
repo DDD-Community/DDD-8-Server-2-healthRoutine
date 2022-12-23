@@ -32,7 +32,7 @@ type repo struct {
 
 func (r *repo) Create(ctx context.Context, nickname, email, password string) (err error) {
 	now := time.Now().UnixMilli()
-	defaultImgUrl := "https://picsum.photos/536/354" // need change
+	defaultImgUrl := "https://user-images.githubusercontent.com/2377807/209339362-fc391ce0-d7ab-4bc4-abaa-ae836ce031e7.png"
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(password), 10)
 	if err != nil {
 		return
@@ -40,13 +40,23 @@ func (r *repo) Create(ctx context.Context, nickname, email, password string) (er
 
 	return r.preparedQuery.Create(ctx, entity.CreateParams{
 		ID:         uuid.New(),
-		Nickname:   nickname, // TODO: nickname 으로 변경
+		Nickname:   nickname,
 		Email:      email,
 		Password:   string(hashPassword),
 		ProfileImg: defaultImgUrl,
 		CreatedAt:  now,
 		UpdatedAt:  now,
 	})
+}
+func (r *repo) GetById(ctx context.Context, id uuid.UUID) (*user.DomainModel, error) {
+	resp, err := r.preparedQuery.GetById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user.DomainModel{
+		User: resp,
+	}, err
 }
 
 func (r *repo) GetByEmail(ctx context.Context, email string) (*user.DomainModel, error) {
@@ -66,4 +76,20 @@ func (r *repo) CheckExistsByEmail(ctx context.Context, email string) (bool, erro
 
 func (r *repo) CheckExistsByNickname(ctx context.Context, nickname string) (bool, error) {
 	return r.preparedQuery.CheckExistsByNickname(ctx, nickname)
+}
+
+func (r *repo) UpdateProfileImgById(ctx context.Context, id uuid.UUID, url string) error {
+	return r.preparedQuery.UpdateProfileImgById(ctx, entity.UpdateProfileImgByIdParams{
+		ProfileImg: url,
+		UpdatedAt:  time.Now().UnixMilli(),
+		ID:         id,
+	})
+}
+
+func (r *repo) UpdateNicknameById(ctx context.Context, id uuid.UUID, nickname string) error {
+	return r.preparedQuery.UpdateNicknameById(ctx, entity.UpdateNicknameByIdParams{
+		Nickname:  nickname,
+		UpdatedAt: time.Now().UnixMilli(),
+		ID:        id,
+	})
 }

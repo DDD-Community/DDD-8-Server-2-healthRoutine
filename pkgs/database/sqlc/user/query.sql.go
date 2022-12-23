@@ -85,3 +85,57 @@ func (q *Queries) GetByEmail(ctx context.Context, email string) (User, error) {
 	)
 	return i, err
 }
+
+const getById = `-- name: GetById :one
+SELECT id, nickname, email, password, profile_img, created_at, updated_at FROM users
+WHERE id = ?
+`
+
+func (q *Queries) GetById(ctx context.Context, id uuid.UUID) (User, error) {
+	row := q.queryRow(ctx, q.getByIdStmt, getById, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Nickname,
+		&i.Email,
+		&i.Password,
+		&i.ProfileImg,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateNicknameById = `-- name: UpdateNicknameById :exec
+UPDATE users
+SET nickname = ?, updated_at = ?
+WHERE id = ?
+`
+
+type UpdateNicknameByIdParams struct {
+	Nickname  string
+	UpdatedAt int64
+	ID        uuid.UUID
+}
+
+func (q *Queries) UpdateNicknameById(ctx context.Context, arg UpdateNicknameByIdParams) error {
+	_, err := q.exec(ctx, q.updateNicknameByIdStmt, updateNicknameById, arg.Nickname, arg.UpdatedAt, arg.ID)
+	return err
+}
+
+const updateProfileImgById = `-- name: UpdateProfileImgById :exec
+UPDATE users
+SET profile_img = ?, updated_at = ?
+WHERE id = ?
+`
+
+type UpdateProfileImgByIdParams struct {
+	ProfileImg string
+	UpdatedAt  int64
+	ID         uuid.UUID
+}
+
+func (q *Queries) UpdateProfileImgById(ctx context.Context, arg UpdateProfileImgByIdParams) error {
+	_, err := q.exec(ctx, q.updateProfileImgByIdStmt, updateProfileImgById, arg.ProfileImg, arg.UpdatedAt, arg.ID)
+	return err
+}

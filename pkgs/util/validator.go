@@ -6,7 +6,10 @@ import (
 )
 
 func CheckEmail(email string) (result bool) {
-	result, _ = regexp.MatchString("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$", email)
+	emailRegex := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
+	result = emailRegex.MatchString(email)
+	//_, err := mail.ParseAddress(email)
+	//return err == nil
 	return
 }
 

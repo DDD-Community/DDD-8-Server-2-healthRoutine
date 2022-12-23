@@ -8,8 +8,10 @@ import (
 	"healthRoutine/application/user/usecase"
 	"healthRoutine/pkgs/errors/response"
 	"healthRoutine/pkgs/log"
+	"healthRoutine/pkgs/middlewares"
 	"healthRoutine/pkgs/util"
 	"net/http"
+	"strings"
 )
 
 const (
@@ -23,11 +25,6 @@ type Handler struct {
 func (h *Handler) signUp(c *fiber.Ctx) error {
 	logger := log.Get()
 	defer logger.Sync()
-
-	type Result struct {
-		Email    string `json:"email"`
-		Nickname string `json:"nickname"`
-	}
 
 	var binder struct {
 		Nickname string `json:"nickname" xml:"-"`
@@ -70,27 +67,12 @@ func (h *Handler) signUp(c *fiber.Ctx) error {
 		})
 	}
 
-	result := Result{
-		Email:    resp.Email,
-		Nickname: resp.Nickname,
-	}
-
-	return c.Status(http.StatusCreated).JSON(map[string]interface{}{
-		"status":  "created",
-		"code":    http.StatusCreated,
-		"message": "successfully created",
-		"result":  result,
-	})
+	return c.Status(http.StatusCreated).JSON(ResponseByHttpStatus(http.StatusCreated, domainModelToSignUpResp(resp)))
 }
 
 func (h *Handler) signIn(c *fiber.Ctx) error {
 	logger := log.Get()
 	defer logger.Sync()
-
-	type Result struct {
-		Email    string `json:"email"`
-		Nickname string `json:"nickname"`
-	}
 
 	var binder struct {
 		Email    string `json:"email" xml:"-"`
@@ -114,18 +96,9 @@ func (h *Handler) signIn(c *fiber.Ctx) error {
 		})
 	}
 
-	result := Result{
-		Email:    resp.Email,
-		Nickname: resp.Nickname,
-	}
+	res := ResponseByHttpStatus(http.StatusOK, domainModelToSignInResp(resp, token))
 
-	return c.Status(http.StatusOK).JSON(map[string]interface{}{
-		"status":  "ok",
-		"code":    http.StatusOK,
-		"message": "success",
-		"token":   token,
-		"result":  result,
-	})
+	return c.Status(http.StatusOK).JSON(res)
 }
 
 func (h *Handler) checkEmailValidation(c *fiber.Ctx) error {
@@ -150,9 +123,109 @@ func (h *Handler) checkEmailValidation(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(http.StatusOK).JSON(map[string]interface{}{
-		"status":  "ok",
-		"code":    http.StatusOK,
-		"message": "success",
+	return c.Status(http.StatusOK).JSON(ResponseByHttpStatus(http.StatusOK))
+}
+
+func (h *Handler) getProfile(c *fiber.Ctx) error {
+	logger := log.Get()
+	defer logger.Sync()
+
+	userId, err := middlewares.ExtractUserId(c)
+	if err != nil {
+		return response.ErrUnauthorized
+	}
+
+	resp, err := h.useCase.GetProfileUseCase.Use(c.Context(), userId)
+	switch {
+	case err == sql.ErrNoRows:
+		err = response.ErrNotFoundUser
+		return response.ErrorResponse(c, err, nil)
+	case err != nil:
+		return response.ErrorResponse(c, err, func(err error) {
+			logger.Named(named).Error("failed to get profile")
+		})
+	}
+
+	res := domainModelToProfileResp(resp)
+
+	return c.Status(http.StatusOK).JSON(ResponseByHttpStatus(http.StatusOK, res))
+
+}
+
+func (h *Handler) updateNickname(c *fiber.Ctx) error {
+	logger := log.Get()
+	defer logger.Sync()
+
+	userId, err := middlewares.ExtractUserId(c)
+	if err != nil {
+		return response.ErrUnauthorized
+	}
+
+	var binder struct {
+		Nickname string `json:"nickname" xml:"-"`
+	}
+	if err = c.BodyParser(&binder); err != nil {
+		logger.Named(named).Error(err)
+		return response.ErrorResponse(c, err, nil)
+	}
+
+	err = h.useCase.UpdateNicknameUseCase.Use(c.Context(), userId, binder.Nickname)
+	if err != nil {
+		return response.ErrorResponse(c, err, func(err error) {
+			logger.Named(named).Error("failed to update nickname")
+		})
+	}
+
+	return c.SendStatus(http.StatusNoContent)
+
+}
+
+func (h *Handler) updateProfileImg(c *fiber.Ctx) error {
+	logger := log.Get()
+	defer logger.Sync()
+
+	userId, err := middlewares.ExtractUserId(c)
+	if err != nil {
+		return response.ErrUnauthorized
+	}
+
+	file, err := c.FormFile("file")
+	if err != nil {
+		logger.Named(named).Error(err)
+		return response.ErrorResponse(c, err, nil)
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		logger.Named(named).Error(err)
+		return response.ErrorResponse(c, err, nil)
+	}
+
+	defer src.Close()
+	buffer := make([]byte, 512)
+	_, err = src.Read(buffer)
+	if err != nil {
+		logger.Named(named).Error(err)
+		return response.ErrorResponse(c, err, nil)
+	}
+
+	contentType := http.DetectContentType(buffer)
+	if !strings.HasPrefix(contentType, "image/") {
+		logger.Error("invalid content type")
+		err = response.ErrInvalidContentType
+		return response.ErrorResponse(c, err, nil)
+	}
+
+	err = h.useCase.UpdateProfileImgUseCase.Use(c.Context(), user.UpdateProfileImgParams{
+		Id:         userId,
+		Filename:   file.Filename,
+		ProfileImg: src,
 	})
+	if err != nil {
+		return response.ErrorResponse(c, err, func(err error) {
+			logger.Named(named).Error("failed to update profile image")
+		})
+	}
+
+	return c.SendStatus(http.StatusNoContent)
 }

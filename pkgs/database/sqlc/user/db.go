@@ -36,6 +36,15 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getByEmailStmt, err = db.PrepareContext(ctx, getByEmail); err != nil {
 		return nil, fmt.Errorf("error preparing query GetByEmail: %w", err)
 	}
+	if q.getByIdStmt, err = db.PrepareContext(ctx, getById); err != nil {
+		return nil, fmt.Errorf("error preparing query GetById: %w", err)
+	}
+	if q.updateNicknameByIdStmt, err = db.PrepareContext(ctx, updateNicknameById); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateNicknameById: %w", err)
+	}
+	if q.updateProfileImgByIdStmt, err = db.PrepareContext(ctx, updateProfileImgById); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateProfileImgById: %w", err)
+	}
 	return &q, nil
 }
 
@@ -59,6 +68,21 @@ func (q *Queries) Close() error {
 	if q.getByEmailStmt != nil {
 		if cerr := q.getByEmailStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getByEmailStmt: %w", cerr)
+		}
+	}
+	if q.getByIdStmt != nil {
+		if cerr := q.getByIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getByIdStmt: %w", cerr)
+		}
+	}
+	if q.updateNicknameByIdStmt != nil {
+		if cerr := q.updateNicknameByIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateNicknameByIdStmt: %w", cerr)
+		}
+	}
+	if q.updateProfileImgByIdStmt != nil {
+		if cerr := q.updateProfileImgByIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateProfileImgByIdStmt: %w", cerr)
 		}
 	}
 	return err
@@ -104,6 +128,9 @@ type Queries struct {
 	checkExistsByNicknameStmt *sql.Stmt
 	createStmt                *sql.Stmt
 	getByEmailStmt            *sql.Stmt
+	getByIdStmt               *sql.Stmt
+	updateNicknameByIdStmt    *sql.Stmt
+	updateProfileImgByIdStmt  *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
@@ -114,5 +141,8 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		checkExistsByNicknameStmt: q.checkExistsByNicknameStmt,
 		createStmt:                q.createStmt,
 		getByEmailStmt:            q.getByEmailStmt,
+		getByIdStmt:               q.getByIdStmt,
+		updateNicknameByIdStmt:    q.updateNicknameByIdStmt,
+		updateProfileImgByIdStmt:  q.updateProfileImgByIdStmt,
 	}
 }

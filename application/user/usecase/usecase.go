@@ -12,4 +12,7 @@ type UseCases struct {
 	user.SignUpUseCase
 	user.SignInUseCase
 	user.EmailValidationUseCase
+	user.GetProfileUseCase
+	user.UpdateProfileImgUseCase
+	user.UpdateNicknameUseCase
 }

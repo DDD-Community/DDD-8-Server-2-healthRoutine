@@ -12,4 +12,5 @@ var (
 	ErrWrongPassword        = NewErrorResponse(http.StatusUnauthorized, "wrong password")
 	ErrEmailAlreadyExist    = NewErrorResponse(http.StatusConflict, "email already exists")
 	ErrNicknameAlreadyExist = NewErrorResponse(http.StatusConflict, "nickname already exists")
+	ErrInvalidContentType   = NewErrorResponse(http.StatusUnsupportedMediaType, "invalid content type")
 )
