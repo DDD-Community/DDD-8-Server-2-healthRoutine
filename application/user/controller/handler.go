@@ -19,7 +19,7 @@ const (
 )
 
 type Handler struct {
-	useCase usecase.UseCases
+	useCase usecase.UserUseCases
 }
 
 func (h *Handler) signUp(c *fiber.Ctx) error {
@@ -27,9 +27,14 @@ func (h *Handler) signUp(c *fiber.Ctx) error {
 	defer logger.Sync()
 
 	var binder struct {
-		Nickname string `json:"nickname" xml:"-"`
-		Email    string `json:"email" xml:"-"`
-		Password string `json:"password" xml:"-"`
+		Nickname string `json:"nickname" xml:"-" validate:"required"`
+		Email    string `json:"email" xml:"-" validate:"required"`
+		Password string `json:"password" xml:"-" validate:"required"`
+	}
+
+	errors := util.ValidateStruct(&binder)
+	if errors != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(errors)
 	}
 	if err := c.BodyParser(&binder); err != nil {
 		return err
@@ -75,8 +80,12 @@ func (h *Handler) signIn(c *fiber.Ctx) error {
 	defer logger.Sync()
 
 	var binder struct {
-		Email    string `json:"email" xml:"-"`
-		Password string `json:"password" xml:"-"`
+		Email    string `json:"email" xml:"-" validate:"required"`
+		Password string `json:"password" xml:"-" validate:"required"`
+	}
+	errors := util.ValidateStruct(&binder)
+	if errors != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(errors)
 	}
 	if err := c.BodyParser(&binder); err != nil {
 		return response.ErrorResponse(c, err, nil)
@@ -106,7 +115,11 @@ func (h *Handler) checkEmailValidation(c *fiber.Ctx) error {
 	defer logger.Sync()
 
 	var binder struct {
-		Email string `json:"email" xml:"-"`
+		Email string `json:"email" xml:"-" validate:"required"`
+	}
+	errors := util.ValidateStruct(&binder)
+	if errors != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(errors)
 	}
 	if err := c.BodyParser(&binder); err != nil {
 		return response.ErrorResponse(c, err, nil)
@@ -162,7 +175,11 @@ func (h *Handler) updateProfile(c *fiber.Ctx) error {
 	}
 
 	var binder struct {
-		Nickname string `json:"nickname" xml:"-"`
+		Nickname string `json:"nickname" xml:"-" validate:"required"`
+	}
+	errors := util.ValidateStruct(&binder)
+	if errors != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(errors)
 	}
 	if err = c.BodyParser(&binder); err != nil {
 		logger.Named(named).Error(err)

@@ -6,7 +6,7 @@ import (
 	"healthRoutine/pkgs/middlewares"
 )
 
-func BindHandler(app *fiber.App, cases usecase.UseCases) {
+func BindUserHandler(app *fiber.App, cases usecase.UserUseCases) {
 	var handler = Handler{
 		useCase: cases,
 	}
