@@ -9,6 +9,7 @@ import (
 	"healthRoutine/application/user/usecase"
 	"healthRoutine/cmd"
 	"healthRoutine/pkgs/database"
+	"net/http"
 )
 
 const addr = ":3000"
@@ -19,6 +20,10 @@ func main() {
 
 	// use fiber logger
 	app.Use(logger.New())
+
+	app.All("/", func(ctx *fiber.Ctx) error {
+		return ctx.SendStatus(http.StatusBadGateway)
+	})
 
 	userRepo := repository.NewUserRepository(db)
 	defaultS3 := s3.NewFromConfig(cmd.GetAWSConfig())
