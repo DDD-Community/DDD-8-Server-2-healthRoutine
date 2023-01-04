@@ -152,7 +152,7 @@ func (h *Handler) getProfile(c *fiber.Ctx) error {
 
 }
 
-func (h *Handler) updateNickname(c *fiber.Ctx) error {
+func (h *Handler) updateProfile(c *fiber.Ctx) error {
 	logger := log.Get()
 	defer logger.Sync()
 
@@ -169,7 +169,10 @@ func (h *Handler) updateNickname(c *fiber.Ctx) error {
 		return response.ErrorResponse(c, err, nil)
 	}
 
-	err = h.useCase.UpdateNicknameUseCase.Use(c.Context(), userId, binder.Nickname)
+	err = h.useCase.UpdateProfileUseCase.Use(c.Context(), user.UpdateProfileParams{
+		Id:       userId,
+		Nickname: binder.Nickname,
+	})
 	if err != nil {
 		return response.ErrorResponse(c, err, func(err error) {
 			logger.Named(named).Error("failed to update nickname")
@@ -180,7 +183,7 @@ func (h *Handler) updateNickname(c *fiber.Ctx) error {
 
 }
 
-func (h *Handler) updateProfileImg(c *fiber.Ctx) error {
+func (h *Handler) uploadProfileImg(c *fiber.Ctx) error {
 	logger := log.Get()
 	defer logger.Sync()
 
@@ -202,24 +205,19 @@ func (h *Handler) updateProfileImg(c *fiber.Ctx) error {
 	}
 
 	defer src.Close()
-	buffer := make([]byte, 512)
-	_, err = src.Read(buffer)
-	if err != nil {
-		logger.Named(named).Error(err)
-		return response.ErrorResponse(c, err, nil)
-	}
 
-	contentType := http.DetectContentType(buffer)
-	if !strings.HasPrefix(contentType, "image/") {
+	if !strings.HasPrefix(file.Header["Content-Type"][0], "image/") {
 		logger.Error("invalid content type")
 		err = response.ErrInvalidContentType
 		return response.ErrorResponse(c, err, nil)
 	}
 
-	err = h.useCase.UpdateProfileImgUseCase.Use(c.Context(), user.UpdateProfileImgParams{
-		Id:         userId,
-		Filename:   file.Filename,
-		ProfileImg: src,
+	url, err := h.useCase.UploadTemporaryProfileUseCase.Use(c.Context(), user.UploadTemporaryProfileParams{
+		Id:            userId,
+		Filename:      file.Filename,
+		ContentType:   file.Header["Content-Type"][0],
+		ContentLength: file.Size,
+		ProfileImg:    src,
 	})
 	if err != nil {
 		return response.ErrorResponse(c, err, func(err error) {
@@ -227,5 +225,11 @@ func (h *Handler) updateProfileImg(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.SendStatus(http.StatusNoContent)
+	var res struct {
+		ProfileImageUrl string `json:"profileImageUrl"`
+	}
+
+	res.ProfileImageUrl = url
+
+	return c.Status(http.StatusOK).JSON(NewResponseBody(http.StatusOK, res))
 }

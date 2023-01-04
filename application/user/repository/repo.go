@@ -78,18 +78,11 @@ func (r *repo) CheckExistsByNickname(ctx context.Context, nickname string) (bool
 	return r.preparedQuery.CheckExistsByNickname(ctx, nickname)
 }
 
-func (r *repo) UpdateProfileImgById(ctx context.Context, id uuid.UUID, url string) error {
-	return r.preparedQuery.UpdateProfileImgById(ctx, entity.UpdateProfileImgByIdParams{
+func (r *repo) UpdateProfileById(ctx context.Context, id uuid.UUID, nickname, url string) error {
+	return r.preparedQuery.UpdateProfileById(ctx, entity.UpdateProfileByIdParams{
+		Nickname:   nickname,
 		ProfileImg: url,
 		UpdatedAt:  time.Now().UnixMilli(),
 		ID:         id,
-	})
-}
-
-func (r *repo) UpdateNicknameById(ctx context.Context, id uuid.UUID, nickname string) error {
-	return r.preparedQuery.UpdateNicknameById(ctx, entity.UpdateNicknameByIdParams{
-		Nickname:  nickname,
-		UpdatedAt: time.Now().UnixMilli(),
-		ID:        id,
 	})
 }

@@ -11,6 +11,5 @@ type Repository interface {
 	GetByEmail(ctx context.Context, email string) (*DomainModel, error)
 	CheckExistsByEmail(ctx context.Context, email string) (bool, error)
 	CheckExistsByNickname(ctx context.Context, nickname string) (bool, error)
-	UpdateProfileImgById(ctx context.Context, id uuid.UUID, url string) error
-	UpdateNicknameById(ctx context.Context, id uuid.UUID, nickname string) error
+	UpdateProfileById(ctx context.Context, id uuid.UUID, nickname, url string) error
 }

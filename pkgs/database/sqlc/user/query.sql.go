@@ -106,36 +106,25 @@ func (q *Queries) GetById(ctx context.Context, id uuid.UUID) (User, error) {
 	return i, err
 }
 
-const updateNicknameById = `-- name: UpdateNicknameById :exec
+const updateProfileById = `-- name: UpdateProfileById :exec
 UPDATE users
-SET nickname = ?, updated_at = ?
+SET nickname = ?, profile_img = ?, updated_at = ?
 WHERE id = ?
 `
 
-type UpdateNicknameByIdParams struct {
-	Nickname  string
-	UpdatedAt int64
-	ID        uuid.UUID
-}
-
-func (q *Queries) UpdateNicknameById(ctx context.Context, arg UpdateNicknameByIdParams) error {
-	_, err := q.exec(ctx, q.updateNicknameByIdStmt, updateNicknameById, arg.Nickname, arg.UpdatedAt, arg.ID)
-	return err
-}
-
-const updateProfileImgById = `-- name: UpdateProfileImgById :exec
-UPDATE users
-SET profile_img = ?, updated_at = ?
-WHERE id = ?
-`
-
-type UpdateProfileImgByIdParams struct {
+type UpdateProfileByIdParams struct {
+	Nickname   string
 	ProfileImg string
 	UpdatedAt  int64
 	ID         uuid.UUID
 }
 
-func (q *Queries) UpdateProfileImgById(ctx context.Context, arg UpdateProfileImgByIdParams) error {
-	_, err := q.exec(ctx, q.updateProfileImgByIdStmt, updateProfileImgById, arg.ProfileImg, arg.UpdatedAt, arg.ID)
+func (q *Queries) UpdateProfileById(ctx context.Context, arg UpdateProfileByIdParams) error {
+	_, err := q.exec(ctx, q.updateProfileByIdStmt, updateProfileById,
+		arg.Nickname,
+		arg.ProfileImg,
+		arg.UpdatedAt,
+		arg.ID,
+	)
 	return err
 }

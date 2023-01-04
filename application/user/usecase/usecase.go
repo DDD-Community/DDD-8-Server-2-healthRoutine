@@ -13,6 +13,6 @@ type UseCases struct {
 	user.SignInUseCase
 	user.EmailValidationUseCase
 	user.GetProfileUseCase
-	user.UpdateProfileImgUseCase
-	user.UpdateNicknameUseCase
+	user.UploadTemporaryProfileUseCase
+	user.UpdateProfileUseCase
 }

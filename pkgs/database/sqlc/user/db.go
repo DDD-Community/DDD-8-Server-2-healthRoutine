@@ -39,11 +39,8 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getByIdStmt, err = db.PrepareContext(ctx, getById); err != nil {
 		return nil, fmt.Errorf("error preparing query GetById: %w", err)
 	}
-	if q.updateNicknameByIdStmt, err = db.PrepareContext(ctx, updateNicknameById); err != nil {
-		return nil, fmt.Errorf("error preparing query UpdateNicknameById: %w", err)
-	}
-	if q.updateProfileImgByIdStmt, err = db.PrepareContext(ctx, updateProfileImgById); err != nil {
-		return nil, fmt.Errorf("error preparing query UpdateProfileImgById: %w", err)
+	if q.updateProfileByIdStmt, err = db.PrepareContext(ctx, updateProfileById); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateProfileById: %w", err)
 	}
 	return &q, nil
 }
@@ -75,14 +72,9 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getByIdStmt: %w", cerr)
 		}
 	}
-	if q.updateNicknameByIdStmt != nil {
-		if cerr := q.updateNicknameByIdStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing updateNicknameByIdStmt: %w", cerr)
-		}
-	}
-	if q.updateProfileImgByIdStmt != nil {
-		if cerr := q.updateProfileImgByIdStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing updateProfileImgByIdStmt: %w", cerr)
+	if q.updateProfileByIdStmt != nil {
+		if cerr := q.updateProfileByIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateProfileByIdStmt: %w", cerr)
 		}
 	}
 	return err
@@ -129,8 +121,7 @@ type Queries struct {
 	createStmt                *sql.Stmt
 	getByEmailStmt            *sql.Stmt
 	getByIdStmt               *sql.Stmt
-	updateNicknameByIdStmt    *sql.Stmt
-	updateProfileImgByIdStmt  *sql.Stmt
+	updateProfileByIdStmt     *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
@@ -142,7 +133,6 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		createStmt:                q.createStmt,
 		getByEmailStmt:            q.getByEmailStmt,
 		getByIdStmt:               q.getByIdStmt,
-		updateNicknameByIdStmt:    q.updateNicknameByIdStmt,
-		updateProfileImgByIdStmt:  q.updateProfileImgByIdStmt,
+		updateProfileByIdStmt:     q.updateProfileByIdStmt,
 	}
 }

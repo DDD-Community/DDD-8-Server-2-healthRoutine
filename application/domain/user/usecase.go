@@ -28,16 +28,23 @@ type GetProfileUseCase interface {
 	Use(ctx context.Context, id uuid.UUID) (*DomainModel, error)
 }
 
-type UpdateProfileImgParams struct {
-	Id         uuid.UUID
-	Filename   string
-	ProfileImg io.Reader
+type UpdateProfileParams struct {
+	Id       uuid.UUID
+	Nickname string
 }
 
-type UpdateProfileImgUseCase interface {
-	Use(ctx context.Context, params UpdateProfileImgParams) error
+type UpdateProfileUseCase interface {
+	Use(ctx context.Context, params UpdateProfileParams) error
 }
 
-type UpdateNicknameUseCase interface {
-	Use(ctx context.Context, id uuid.UUID, nickname string) error
+type UploadTemporaryProfileParams struct {
+	Id            uuid.UUID
+	Filename      string
+	ContentType   string
+	ContentLength int64
+	ProfileImg    io.Reader
+}
+
+type UploadTemporaryProfileUseCase interface {
+	Use(ctx context.Context, params UploadTemporaryProfileParams) (string, error)
 }

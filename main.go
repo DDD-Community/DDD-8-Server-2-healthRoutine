@@ -29,12 +29,12 @@ func main() {
 	defaultS3 := s3.NewFromConfig(cmd.GetAWSConfig())
 
 	useCase := usecase.UseCases{
-		SignUpUseCase:           usecase.SignUpUseCase(userRepo),
-		SignInUseCase:           usecase.SignInUseCase(userRepo),
-		EmailValidationUseCase:  usecase.EmailValidationUseCase(userRepo),
-		GetProfileUseCase:       usecase.GetProfileUseCase(userRepo),
-		UpdateProfileImgUseCase: usecase.UpdateProfileImgUseCase(userRepo, defaultS3),
-		UpdateNicknameUseCase:   usecase.UpdateNicknameUseCase(userRepo),
+		SignUpUseCase:                 usecase.SignUpUseCase(userRepo),
+		SignInUseCase:                 usecase.SignInUseCase(userRepo),
+		EmailValidationUseCase:        usecase.EmailValidationUseCase(userRepo),
+		GetProfileUseCase:             usecase.GetProfileUseCase(userRepo),
+		UploadTemporaryProfileUseCase: usecase.UploadTemporaryProfileUseCase(userRepo, defaultS3),
+		UpdateProfileUseCase:          usecase.UpdateProfileUseCase(userRepo, defaultS3),
 	}
 
 	controller.BindHandler(app, useCase)

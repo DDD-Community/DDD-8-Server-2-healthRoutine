@@ -21,12 +21,7 @@ SELECT EXISTS(
    WHERE nickname = ?
            ) AS isExists;
 
--- name: UpdateProfileImgById :exec
+-- name: UpdateProfileById :exec
 UPDATE users
-SET profile_img = ?, updated_at = ?
-WHERE id = ?;
-
--- name: UpdateNicknameById :exec
-UPDATE users
-SET nickname = ?, updated_at = ?
+SET nickname = ?, profile_img = ?, updated_at = ?
 WHERE id = ?;
