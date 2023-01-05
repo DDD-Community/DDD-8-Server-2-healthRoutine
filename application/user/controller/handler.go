@@ -173,7 +173,11 @@ func (h *Handler) updateProfile(c *fiber.Ctx) error {
 		Id:       userId,
 		Nickname: binder.Nickname,
 	})
-	if err != nil {
+	switch {
+	case err == user.ErrNicknameAlreadyExists:
+		err = response.ErrNicknameAlreadyExist
+		return response.ErrorResponse(c, err, nil)
+	case err != nil:
 		return response.ErrorResponse(c, err, func(err error) {
 			logger.Named(named).Error("failed to update nickname")
 		})

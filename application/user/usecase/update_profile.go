@@ -7,7 +7,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"go.uber.org/zap"
 	"healthRoutine/application/domain/user"
-	"healthRoutine/pkgs/errors/response"
 	"healthRoutine/pkgs/log"
 	"healthRoutine/pkgs/util/format"
 	"strings"
@@ -40,7 +39,7 @@ func (u *updateProfileUseCaseImpl) Use(ctx context.Context, params user.UpdatePr
 		logger.Error(err)
 		return
 	case checkNickname != false:
-		err = response.ErrNicknameAlreadyExist
+		err = user.ErrNicknameAlreadyExists
 		logger.Error("nickname already exists")
 		return
 	}
