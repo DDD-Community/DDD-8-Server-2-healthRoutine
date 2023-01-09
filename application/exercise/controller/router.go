@@ -20,4 +20,6 @@ func BindExerciseHandler(app *fiber.App, cases usecase.ExerciseUseCase) {
 	// exercise category
 	api.Get("/exercise/category", handler.fetchCategories)
 	api.Get("/exercise/today", middlewares.AuthRequired(), handler.fetchTodayExercise)
+
+	api.Get("/test", handler.fetchMonthly)
 }

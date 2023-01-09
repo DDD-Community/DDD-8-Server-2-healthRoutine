@@ -7,4 +7,5 @@ type ExerciseUseCase struct {
 	exercise.FetchExerciseByCategoryIdUseCase
 	exercise.FetchCategoriesUseCase
 	exercise.FetchTodayExerciseByUserIdUseCase
+	exercise.FetchByDatetimeUseCase
 }

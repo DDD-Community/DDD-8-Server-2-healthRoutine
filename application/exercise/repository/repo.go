@@ -46,7 +46,8 @@ func (r *repo) Create(
 	})
 }
 
-func (r *repo) FetchByDateTime(ctx context.Context, userId uuid.UUID, start, end int64) (res []exercise.DomainModel, err error) {
+func (r *repo) FetchByDateTime(ctx context.Context, userId uuid.UUID, year, month int) (res []exercise.DomainModel, err error) {
+	start, end := timex.GetDateForAMonthToUnixMilliSecond(year, month)
 	resp, err := r.preparedQuery.FetchByDateTime(ctx, entity.FetchByDateTimeParams{
 		UserID:      userId,
 		CreatedAt:   start,
@@ -72,6 +73,15 @@ func (r *repo) FetchByDateTime(ctx context.Context, userId uuid.UUID, start, end
 
 	}
 	return
+}
+
+func (r *repo) GetTodayExerciseCount(ctx context.Context, userId uuid.UUID, time int64) (int64, error) {
+	start, end := timex.GetDateForADayUnixMillisecond(time)
+	return r.preparedQuery.GetTodayExerciseCount(ctx, entity.GetTodayExerciseCountParams{
+		UserID:      userId,
+		CreatedAt:   start,
+		CreatedAt_2: end,
+	})
 }
 
 func (r *repo) FetchCategories(ctx context.Context) (res []exercise.ExerciseCategoryModel, err error) {

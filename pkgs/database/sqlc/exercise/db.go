@@ -39,6 +39,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.fetchTodayExerciseByUserIdStmt, err = db.PrepareContext(ctx, fetchTodayExerciseByUserId); err != nil {
 		return nil, fmt.Errorf("error preparing query FetchTodayExerciseByUserId: %w", err)
 	}
+	if q.getTodayExerciseCountStmt, err = db.PrepareContext(ctx, getTodayExerciseCount); err != nil {
+		return nil, fmt.Errorf("error preparing query GetTodayExerciseCount: %w", err)
+	}
 	return &q, nil
 }
 
@@ -67,6 +70,11 @@ func (q *Queries) Close() error {
 	if q.fetchTodayExerciseByUserIdStmt != nil {
 		if cerr := q.fetchTodayExerciseByUserIdStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing fetchTodayExerciseByUserIdStmt: %w", cerr)
+		}
+	}
+	if q.getTodayExerciseCountStmt != nil {
+		if cerr := q.getTodayExerciseCountStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getTodayExerciseCountStmt: %w", cerr)
 		}
 	}
 	return err
@@ -113,6 +121,7 @@ type Queries struct {
 	fetchCategoriesStmt            *sql.Stmt
 	fetchExerciseByCategoryIdStmt  *sql.Stmt
 	fetchTodayExerciseByUserIdStmt *sql.Stmt
+	getTodayExerciseCountStmt      *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
@@ -124,5 +133,6 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		fetchCategoriesStmt:            q.fetchCategoriesStmt,
 		fetchExerciseByCategoryIdStmt:  q.fetchExerciseByCategoryIdStmt,
 		fetchTodayExerciseByUserIdStmt: q.fetchTodayExerciseByUserIdStmt,
+		getTodayExerciseCountStmt:      q.getTodayExerciseCountStmt,
 	}
 }

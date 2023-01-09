@@ -143,3 +143,32 @@ func (h *Handler) fetchTodayExercise(c *fiber.Ctx) error {
 	// TODO: type binding
 	return c.Status(http.StatusOK).JSON(controller.NewResponseBody(http.StatusOK, resp))
 }
+
+func (h *Handler) fetchMonthly(c *fiber.Ctx) error {
+	logger := h.log()
+	defer logger.Sync()
+
+	var binder struct {
+		Year  int `json:"-" xml:"-" query:"y"`
+		Month int `json:"-" xml:"-" query:"m"`
+	}
+
+	if err := c.QueryParser(&binder); err != nil {
+		logger.Error(err)
+		return response.ErrorResponse(c, err, nil)
+	}
+	userId, err := middlewares.ExtractUserId(c)
+	if err != nil {
+		err = response.ErrUnauthorized
+		return response.ErrorResponse(c, err, nil)
+	}
+
+	resp, err := h.useCase.FetchByDatetimeUseCase.Use(c.Context(), userId, binder.Year, binder.Month)
+	if err != nil {
+		return response.ErrorResponse(c, err, func(err error) {
+			logger.Error(err)
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(controller.NewResponseBody(http.StatusOK, resp))
+}

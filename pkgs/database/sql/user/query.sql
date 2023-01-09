@@ -9,6 +9,10 @@ WHERE id = ?;
 SELECT * from users
 WHERE email = ?;
 
+-- name: GetNicknameById :one
+SELECT nickname from users
+WHERE id = ?;
+
 -- name: CheckExistsByEmail :one
 SELECT EXISTS(
     SELECT * FROM users

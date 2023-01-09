@@ -46,6 +46,7 @@ func main() {
 		FetchExerciseByCategoryIdUseCase:  usecase2.FetchExerciseByCategoryIdUseCase(exerciseRepo),
 		FetchCategoriesUseCase:            usecase2.FetchCategoriesUseCase(exerciseRepo),
 		FetchTodayExerciseByUserIdUseCase: usecase2.FetchTodayExerciseByUserIdUseCase(exerciseRepo),
+		FetchByDatetimeUseCase:            usecase2.FetchByDatetimeUseCase(exerciseRepo, userRepo),
 	}
 
 	controller.BindUserHandler(app, userUseCase)

@@ -32,10 +32,6 @@ func (h *Handler) signUp(c *fiber.Ctx) error {
 		Password string `json:"password" xml:"-" validate:"required"`
 	}
 
-	errors := util.ValidateStruct(&binder)
-	if errors != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(errors)
-	}
 	if err := c.BodyParser(&binder); err != nil {
 		return err
 	}
@@ -83,10 +79,7 @@ func (h *Handler) signIn(c *fiber.Ctx) error {
 		Email    string `json:"email" xml:"-" validate:"required"`
 		Password string `json:"password" xml:"-" validate:"required"`
 	}
-	errors := util.ValidateStruct(&binder)
-	if errors != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(errors)
-	}
+
 	if err := c.BodyParser(&binder); err != nil {
 		return response.ErrorResponse(c, err, nil)
 	}

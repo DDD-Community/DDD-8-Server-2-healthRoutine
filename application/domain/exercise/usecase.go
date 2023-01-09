@@ -5,14 +5,6 @@ import (
 	"github.com/google/uuid"
 )
 
-/*
-/*
-ctx context.Context,
-	userId uuid.UUID,
-	exerciseId int64,
-	weight, set, minute int32
-*/
-
 type CreateExerciseParams struct {
 	UserId     uuid.UUID
 	ExerciseId int64
@@ -40,4 +32,22 @@ type FetchTodayExerciseParams struct {
 
 type FetchTodayExerciseByUserIdUseCase interface {
 	Use(ctx context.Context, userId uuid.UUID, time int64) ([]FetchTodayExerciseParams, error)
+}
+
+type FetchByDatetimeResult struct {
+	Year           int
+	Month          int
+	TotalOfMonth   int
+	WelcomeMessage string
+	Data           []FetchByDatetimeDetail
+}
+
+type FetchByDatetimeDetail struct {
+	Day           int
+	TotalExercise int64
+	Level         int32
+}
+
+type FetchByDatetimeUseCase interface {
+	Use(ctx context.Context, userId uuid.UUID, year, month int) (FetchByDatetimeResult, error)
 }

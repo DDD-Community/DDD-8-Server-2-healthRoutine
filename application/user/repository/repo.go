@@ -70,6 +70,10 @@ func (r *repo) GetByEmail(ctx context.Context, email string) (*user.DomainModel,
 	}, err
 }
 
+func (r *repo) GetNicknameById(ctx context.Context, userId uuid.UUID) (string, error) {
+	return r.preparedQuery.GetNicknameById(ctx, userId)
+}
+
 func (r *repo) CheckExistsByEmail(ctx context.Context, email string) (bool, error) {
 	return r.preparedQuery.CheckExistsByEmail(ctx, email)
 }

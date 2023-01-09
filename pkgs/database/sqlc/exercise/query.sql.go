@@ -40,7 +40,7 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) error {
 
 const fetchByDateTime = `-- name: FetchByDateTime :many
 SELECT h.id, h.user_id, h.exercise_id, h.weight, h.` + "`" + `set` + "`" + `, h.minute, h.created_at, e.subject FROM health h
-         INNER JOIN exercise e on h.exercise_id = e.id
+         INNER JOIN exercise e ON h.exercise_id = e.id
          WHERE h.user_id = ? AND h.created_at BETWEEN ? AND ?
          ORDER BY h.created_at DESC
 `
@@ -150,8 +150,8 @@ func (q *Queries) FetchExerciseByCategoryId(ctx context.Context, categoryID int6
 }
 
 const fetchTodayExerciseByUserId = `-- name: FetchTodayExerciseByUserId :many
-SELECT e.subject, COUNT(h.exercise_id) as count FROM health h
-    INNER JOIN exercise e on h.exercise_id = e.id
+SELECT e.subject, COUNT(h.exercise_id) AS count FROM health h
+    INNER JOIN exercise e ON h.exercise_id = e.id
     WHERE h.user_id = ? AND h.created_at BETWEEN ? AND ?
 GROUP BY e.subject, h.exercise_id
 `
@@ -188,4 +188,22 @@ func (q *Queries) FetchTodayExerciseByUserId(ctx context.Context, arg FetchToday
 		return nil, err
 	}
 	return items, nil
+}
+
+const getTodayExerciseCount = `-- name: GetTodayExerciseCount :one
+SELECT COUNT(exercise_id) AS count FROM health
+WHERE user_id = ? AND created_at BETWEEN ? AND ?
+`
+
+type GetTodayExerciseCountParams struct {
+	UserID      uuid.UUID
+	CreatedAt   int64
+	CreatedAt_2 int64
+}
+
+func (q *Queries) GetTodayExerciseCount(ctx context.Context, arg GetTodayExerciseCountParams) (int64, error) {
+	row := q.queryRow(ctx, q.getTodayExerciseCountStmt, getTodayExerciseCount, arg.UserID, arg.CreatedAt, arg.CreatedAt_2)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
