@@ -24,12 +24,6 @@ func (u *signUpUseCaseImpl) Use(ctx context.Context, params user.SignUpParams) (
 		return
 	}
 
-	nicknameExists, err := u.Repository.CheckExistsByNickname(ctx, params.Nickname)
-	if nicknameExists {
-		err = user.ErrNicknameAlreadyExists
-		return
-	}
-
 	err = u.Repository.Create(ctx,
 		params.Nickname,
 		params.Email,

@@ -61,9 +61,6 @@ func (h *Handler) signUp(c *fiber.Ctx) error {
 	case errors.Is(err, user.ErrEmailAlreadyExists):
 		err = response.ErrEmailAlreadyExist
 		return response.ErrorResponse(c, err, nil)
-	case errors.Is(err, user.ErrEmailAlreadyExists):
-		err = response.ErrNicknameAlreadyExist
-		return response.ErrorResponse(c, err, nil)
 	case err != nil:
 		return response.ErrorResponse(c, err, func(err error) {
 			logger.Error("failed to sign up")
