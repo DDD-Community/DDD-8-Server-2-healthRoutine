@@ -29,6 +29,7 @@ LIMIT 8;
 SELECT
     ec.subject,
     e.subject,
+    e.id,
     SUM(h.weight) AS weight,
     SUM(h.`set`) AS `set`,
     COUNT(h.exercise_id) AS count,

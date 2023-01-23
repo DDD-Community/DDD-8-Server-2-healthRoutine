@@ -36,6 +36,7 @@ type FetchCategoriesUseCase interface {
 }
 
 type FetchTodayExerciseResult struct {
+	ExerciseId      int64
 	ExerciseSubject string
 	CategorySubject string
 	Weight          int64

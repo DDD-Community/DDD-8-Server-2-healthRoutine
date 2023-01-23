@@ -41,6 +41,7 @@ func exerciseCategoryDomainToData(model []exercise.ExerciseCategoryModel) (res [
 }
 
 type fetchTodayExerciseData struct {
+	ExerciseId      int64  `json:"exerciseId"`
 	ExerciseSubject string `json:"exerciseSubject"`
 	CategorySubject string `json:"categorySubject"`
 	Weight          int64  `json:"weight"`
@@ -53,6 +54,7 @@ func fetchTodayExerciseResultToData(list []exercise.FetchTodayExerciseResult) (r
 	res = make([]fetchTodayExerciseData, 0, len(list))
 	for _, v := range list {
 		res = append(res, fetchTodayExerciseData{
+			ExerciseId:      v.ExerciseId,
 			ExerciseSubject: v.ExerciseSubject,
 			CategorySubject: v.CategorySubject,
 			Weight:          v.Weight,

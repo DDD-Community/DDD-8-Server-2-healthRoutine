@@ -26,6 +26,7 @@ func (u *fetchTodayExerciseByUserIdUseCaseImpl) Use(ctx context.Context, userId 
 	res = make([]exercise.FetchTodayExerciseResult, 0, len(resp))
 	for _, v := range resp {
 		res = append(res, exercise.FetchTodayExerciseResult{
+			ExerciseId:      v.ID,
 			ExerciseSubject: v.Subject_2,
 			CategorySubject: v.Subject,
 			Weight:          dbx.ConvertInterfaceToInt64(v.Weight),

@@ -208,6 +208,7 @@ const fetchTodayExerciseByUserId = `-- name: FetchTodayExerciseByUserId :many
 SELECT
     ec.subject,
     e.subject,
+    e.id,
     SUM(h.weight) AS weight,
     SUM(h.` + "`" + `set` + "`" + `) AS ` + "`" + `set` + "`" + `,
     COUNT(h.exercise_id) AS count,
@@ -228,6 +229,7 @@ type FetchTodayExerciseByUserIdParams struct {
 type FetchTodayExerciseByUserIdRow struct {
 	Subject   string
 	Subject_2 string
+	ID        int64
 	Weight    interface{}
 	Set       interface{}
 	Count     int64
@@ -246,6 +248,7 @@ func (q *Queries) FetchTodayExerciseByUserId(ctx context.Context, arg FetchToday
 		if err := rows.Scan(
 			&i.Subject,
 			&i.Subject_2,
+			&i.ID,
 			&i.Weight,
 			&i.Set,
 			&i.Count,
