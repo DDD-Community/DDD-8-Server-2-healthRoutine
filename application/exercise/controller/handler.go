@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"database/sql"
 	"errors"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -210,21 +209,17 @@ func (h *Handler) fetchTodayExercise(c *fiber.Ctx) error {
 
 	resp, err := h.useCase.FetchTodayExerciseByUserIdUseCase.Use(c.Context(), userId, binder.Time)
 	switch {
-	//TODO: sql error need to go repo
-	case err == sql.ErrNoRows:
-		return c.Status(http.StatusNotFound).JSON(response.ErrNotFoundUser)
+	case err == nil:
+		return c.Status(http.StatusOK).JSON(controller.NewResponseBody(http.StatusOK, fetchTodayExerciseResultToData(resp)))
 	case userId == uuid.Nil:
 		return c.Status(http.StatusNotFound).JSON(response.ErrNotFoundUser)
-	case err != nil:
-		return response.ErrorResponse(c, err, func(err error) {
-			logger.Error(err)
-			logger.Error(binder.Time)
-			logger.Error("failed to fetch today exercise")
-		})
 	}
 
-	// TODO: type binding
-	return c.Status(http.StatusOK).JSON(controller.NewResponseBody(http.StatusOK, fetchTodayExerciseResultToData(resp)))
+	return response.ErrorResponse(c, err, func(err error) {
+		logger.Error(err)
+		logger.Error(binder.Time)
+		logger.Error("failed to fetch today exercise")
+	})
 }
 
 func (h *Handler) deleteHealth(c *fiber.Ctx) error {
