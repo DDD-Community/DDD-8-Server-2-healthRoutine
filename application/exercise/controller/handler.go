@@ -117,9 +117,9 @@ func (h *Handler) createExerciseHistory(c *fiber.Ctx) error {
 
 	var binder struct {
 		ExerciseId int64 `json:"exerciseId" xml:"-" validate:"required"`
-		Weight     int32 `json:"weight" xml:"-" validate:"required"`
-		Set        int32 `json:"set" xml:"-" validate:"required"`
-		Minute     int32 `json:"minute" xml:"-" validate:"required"`
+		Weight     int32 `json:"weight" xml:"-"`
+		Set        int32 `json:"set" xml:"-"`
+		Minute     int32 `json:"minute" xml:"-"`
 	}
 	if err = c.BodyParser(&binder); err != nil {
 		return err
