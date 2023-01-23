@@ -24,8 +24,8 @@ func exerciseDomainToData(model []exercise.ExerciseModel) (res []fetchExerciseDa
 }
 
 type fetchCategoriesData struct {
-	Id      int64
-	Subject string
+	Id      int64  `json:"id"`
+	Subject string `json:"subject"`
 }
 
 func exerciseCategoryDomainToData(model []exercise.ExerciseCategoryModel) (res []fetchCategoriesData) {
