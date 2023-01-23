@@ -63,15 +63,21 @@ func (u *fetchByDatetimeUseCaseImpl) Use(ctx context.Context, userId uuid.UUID, 
 				break
 			}
 		}
+		var level int32
 		isFutureDays := false
 		if time.Now().Day() < int(days) {
 			isFutureDays = true
 		}
 		if match == false {
+			if !isFutureDays {
+				level = 1
+			} else {
+				level = 0
+			}
 			res = append(res, exercise.FetchByDatetimeDetail{
 				Day:           int(days),
 				TotalExercise: 0,
-				Level:         nil,
+				Level:         level,
 				IsFutureDays:  isFutureDays,
 			})
 		}
@@ -104,8 +110,7 @@ func (u *fetchByDatetimeUseCaseImpl) Use(ctx context.Context, userId uuid.UUID, 
 	return
 }
 
-func getLevel(cnt int64) *int32 {
-	var level int32
+func getLevel(cnt int64) (level int32) {
 	switch {
 	case cnt == 0:
 		level = 1
@@ -116,5 +121,5 @@ func getLevel(cnt int64) *int32 {
 	case cnt > 5:
 		level = 4
 	}
-	return &level
+	return
 }

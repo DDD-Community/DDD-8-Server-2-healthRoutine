@@ -58,7 +58,7 @@ type FetchByDatetimeResult struct {
 type FetchByDatetimeDetail struct {
 	Day           int
 	TotalExercise int64
-	Level         *int32
+	Level         int32
 	IsFutureDays  bool
 }
 

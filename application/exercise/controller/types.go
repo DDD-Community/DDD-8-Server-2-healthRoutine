@@ -73,10 +73,10 @@ type fetchByDatetimeResult struct {
 }
 
 type fetchByDatetimeDetail struct {
-	Day           int    `json:"day"`
-	TotalExercise int64  `json:"totalExercise"`
-	Level         *int32 `json:"level"`
-	IsFutureDays  bool   `json:"isFutureDays"`
+	Day           int   `json:"day"`
+	TotalExercise int64 `json:"totalExercise"`
+	Level         int32 `json:"level"`
+	IsFutureDays  bool  `json:"isFutureDays"`
 }
 
 func fetchByDatetimeResultTypes(result exercise.FetchByDatetimeResult) fetchByDatetimeResult {
