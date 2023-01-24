@@ -47,6 +47,7 @@ func (u *updateProfileUseCaseImpl) Use(ctx context.Context, params user.UpdatePr
 
 	logger.Info("start sorting latest file")
 	lastItem, err := sortByObjectLastModified(ctx, u.s3Cli, params.Id)
+	logger.Info(lastItem)
 	if err != nil {
 		logger.Error(err)
 		return

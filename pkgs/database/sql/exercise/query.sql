@@ -23,7 +23,7 @@ SELECT * FROM exercise_category;
 -- name: FetchExerciseByCategoryId :many
 SELECT * FROM exercise
 WHERE category_id = ?
-LIMIT 8;
+LIMIT ?;
 
 -- name: FetchTodayExerciseByUserId :many
 SELECT

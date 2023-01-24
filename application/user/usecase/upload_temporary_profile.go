@@ -7,9 +7,13 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"go.uber.org/zap"
+	"golang.org/x/text/unicode/norm"
 	"healthRoutine/application/domain/user"
 	"healthRoutine/pkgs/log"
 	"healthRoutine/pkgs/util/format"
+	"strings"
+	"time"
+	"unicode"
 )
 
 var _ user.UploadTemporaryProfileUseCase = (*uploadTemporaryProfileUseCaseImpl)(nil)
@@ -34,8 +38,16 @@ func (u *uploadTemporaryProfileUseCaseImpl) Use(ctx context.Context, params user
 	logger := u.log()
 	defer logger.Sync()
 
-	key := fmt.Sprintf("%s/%s", format.ConvertUUIDToKey(params.Id), params.Filename)
-	logger.Debug(key)
+	var filename string
+	if containsKorean(params.Filename) {
+		t := time.Now().UnixMilli()
+		extension := strings.Split(params.ContentType, "/")
+		filename = fmt.Sprintf("%d_%d.%s", params.ContentLength, t, extension[1])
+	} else {
+		filename = strings.ReplaceAll(params.Filename, " ", "_")
+	}
+
+	key := fmt.Sprintf("%s/%s", format.ConvertUUIDToKey(params.Id), filename)
 
 	_, err = u.s3Cli.PutObject(ctx, &s3.PutObjectInput{
 		Bucket:        aws.String(profileTempBucketName),
@@ -54,4 +66,14 @@ func (u *uploadTemporaryProfileUseCaseImpl) Use(ctx context.Context, params user
 		url = fmt.Sprintf("https://%s.s3.ap-northeast-2.amazonaws.com/%s", profileTempBucketName, key)
 		return
 	}
+}
+
+func containsKorean(str string) bool {
+	normalizedText := norm.NFC.String(str)
+	for _, r := range normalizedText {
+		if unicode.Is(unicode.Hangul, r) {
+			return true
+		}
+	}
+	return false
 }

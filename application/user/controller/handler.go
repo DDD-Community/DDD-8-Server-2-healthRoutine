@@ -110,11 +110,11 @@ func (h *Handler) checkEmailValidation(c *fiber.Ctx) error {
 		Email string `json:"email" xml:"-" validate:"required"`
 	}
 	validateErrors := util.ValidateStruct(&binder) // TODO: validator 분리 필요
-	if validateErrors != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(validateErrors)
-	}
 	if err := c.BodyParser(&binder); err != nil {
 		return response.ErrorResponse(c, err, nil)
+	}
+	if validateErrors != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(validateErrors)
 	}
 
 	err := h.useCase.EmailValidationUseCase.Use(c.Context(), binder.Email)
@@ -169,13 +169,14 @@ func (h *Handler) updateProfile(c *fiber.Ctx) error {
 	var binder struct {
 		Nickname string `json:"nickname" xml:"-" validate:"required"`
 	}
-	validateErrors := util.ValidateStruct(&binder)
-	if validateErrors != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(validateErrors)
-	}
 	if err = c.BodyParser(&binder); err != nil {
 		logger.Error(err)
 		return response.ErrorResponse(c, err, nil)
+	}
+
+	validateErrors := util.ValidateStruct(&binder)
+	if validateErrors != nil {
+		return c.Status(http.StatusBadRequest).JSON(validateErrors)
 	}
 
 	err = h.useCase.UpdateProfileUseCase.Use(c.Context(), user.UpdateProfileParams{
@@ -192,7 +193,9 @@ func (h *Handler) updateProfile(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.SendStatus(http.StatusNoContent)
+	// http 표준은 204 No Content 가 맞지만
+	// response body 로 처리하고있기에, 임시로 200 OK 로 처리 중
+	return c.Status(http.StatusOK).JSON(NewResponseBody(http.StatusOK))
 
 }
 
@@ -244,5 +247,7 @@ func (h *Handler) uploadProfileImg(c *fiber.Ctx) error {
 
 	res.ProfileImageUrl = url
 
+	// http 표준은 204 No Content 가 맞지만
+	// response body 로 처리하고있기에, 임시로 200 OK 로 처리 중
 	return c.Status(http.StatusOK).JSON(NewResponseBody(http.StatusOK, res))
 }
