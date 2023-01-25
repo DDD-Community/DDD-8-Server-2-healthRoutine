@@ -4,6 +4,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	controller2 "healthRoutine/application/exercise/controller"
 	repository2 "healthRoutine/application/exercise/repository"
 	usecase2 "healthRoutine/application/exercise/usecase"
@@ -23,6 +24,9 @@ func main() {
 
 	// use fiber logger
 	app.Use(logger.New())
+
+	// if panic, recover
+	app.Use(recover.New())
 
 	app.All("/", func(ctx *fiber.Ctx) error {
 		return ctx.SendStatus(http.StatusBadGateway)
