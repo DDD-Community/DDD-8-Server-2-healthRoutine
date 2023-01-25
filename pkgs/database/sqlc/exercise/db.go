@@ -30,6 +30,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createExerciseStmt, err = db.PrepareContext(ctx, createExercise); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateExercise: %w", err)
 	}
+	if q.createOrUpdateWaterStmt, err = db.PrepareContext(ctx, createOrUpdateWater); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateOrUpdateWater: %w", err)
+	}
 	if q.deleteExerciseStmt, err = db.PrepareContext(ctx, deleteExercise); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteExercise: %w", err)
 	}
@@ -54,6 +57,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getTodayExerciseCountStmt, err = db.PrepareContext(ctx, getTodayExerciseCount); err != nil {
 		return nil, fmt.Errorf("error preparing query GetTodayExerciseCount: %w", err)
 	}
+	if q.getWaterByUserIdStmt, err = db.PrepareContext(ctx, getWaterByUserId); err != nil {
+		return nil, fmt.Errorf("error preparing query GetWaterByUserId: %w", err)
+	}
 	return &q, nil
 }
 
@@ -67,6 +73,11 @@ func (q *Queries) Close() error {
 	if q.createExerciseStmt != nil {
 		if cerr := q.createExerciseStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createExerciseStmt: %w", cerr)
+		}
+	}
+	if q.createOrUpdateWaterStmt != nil {
+		if cerr := q.createOrUpdateWaterStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createOrUpdateWaterStmt: %w", cerr)
 		}
 	}
 	if q.deleteExerciseStmt != nil {
@@ -107,6 +118,11 @@ func (q *Queries) Close() error {
 	if q.getTodayExerciseCountStmt != nil {
 		if cerr := q.getTodayExerciseCountStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getTodayExerciseCountStmt: %w", cerr)
+		}
+	}
+	if q.getWaterByUserIdStmt != nil {
+		if cerr := q.getWaterByUserIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getWaterByUserIdStmt: %w", cerr)
 		}
 	}
 	return err
@@ -150,6 +166,7 @@ type Queries struct {
 	tx                             *sql.Tx
 	createStmt                     *sql.Stmt
 	createExerciseStmt             *sql.Stmt
+	createOrUpdateWaterStmt        *sql.Stmt
 	deleteExerciseStmt             *sql.Stmt
 	deleteHealthStmt               *sql.Stmt
 	fetchByDateTimeStmt            *sql.Stmt
@@ -158,6 +175,7 @@ type Queries struct {
 	fetchTodayExerciseByUserIdStmt *sql.Stmt
 	getExerciseByIdStmt            *sql.Stmt
 	getTodayExerciseCountStmt      *sql.Stmt
+	getWaterByUserIdStmt           *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
@@ -166,6 +184,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		tx:                             tx,
 		createStmt:                     q.createStmt,
 		createExerciseStmt:             q.createExerciseStmt,
+		createOrUpdateWaterStmt:        q.createOrUpdateWaterStmt,
 		deleteExerciseStmt:             q.deleteExerciseStmt,
 		deleteHealthStmt:               q.deleteHealthStmt,
 		fetchByDateTimeStmt:            q.fetchByDateTimeStmt,
@@ -174,5 +193,6 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		fetchTodayExerciseByUserIdStmt: q.fetchTodayExerciseByUserIdStmt,
 		getExerciseByIdStmt:            q.getExerciseByIdStmt,
 		getTodayExerciseCountStmt:      q.getTodayExerciseCountStmt,
+		getWaterByUserIdStmt:           q.getWaterByUserIdStmt,
 	}
 }

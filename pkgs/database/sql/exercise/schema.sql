@@ -25,6 +25,21 @@ CREATE INDEX health_user_id_idx ON health (user_id);
 CREATE INDEX health_exercise_id_idx ON health (exercise_id);
 CREATE INDEX health_created_at_idx ON health (created_at);
 
+CREATE TABLE water (
+   user_id CHAR(36) NOT NULL,
+   capacity BIGINT NOT NULL DEFAULT 0,
+   unit VARCHAR(10) NOT NULL,
+   `date` VARCHAR(15) NOT NULL,
+   created_at BIGINT NOT NULL,
+   updated_at BIGINT NOT NULL,
+   PRIMARY KEY (user_id, `date`)
+);
+
+CREATE INDEX water_user_id_idx ON water (user_id);
+CREATE INDEX water_date_idx ON water (`date`);
+CREATE INDEX water_created_at_idx ON water (created_at);
+CREATE INDEX water_updated_at_idx ON water (updated_at);
+
 INSERT INTO exercise_category (subject)
 VALUES
     ('가슴'),

@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/google/uuid"
 	"healthRoutine/application/domain/exercise"
+	entity "healthRoutine/pkgs/database/sqlc/exercise"
 )
 
 // TODO: refactor
@@ -98,4 +99,16 @@ func fetchByDatetimeResultTypes(result exercise.FetchByDatetimeResult) fetchByDa
 		Data:           data,
 	}
 
+}
+
+type getWaterData struct {
+	Capacity int64  `json:"capacity"`
+	Unit     string `json:"unit"`
+}
+
+func getWaterToGetWaterData(data entity.Water) getWaterData {
+	return getWaterData{
+		Capacity: data.Capacity,
+		Unit:     data.Unit,
+	}
 }

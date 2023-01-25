@@ -46,3 +46,12 @@ WHERE id = ? AND user_id = ?;
 -- name: DeleteHealth :exec
 DELETE FROM health
 WHERE id = ?;
+
+-- name: GetWaterByUserId :one
+SELECT * FROM water
+WHERE user_id = ? AND created_at BETWEEN ? AND ?;
+
+-- name: CreateOrUpdateWater :exec
+INSERT INTO water(user_id, capacity, unit, `date`, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE capacity = ? , updated_at = ?;
+

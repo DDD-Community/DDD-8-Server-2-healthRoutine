@@ -11,4 +11,6 @@ type ExerciseUseCase struct {
 	exercise.FetchByDatetimeUseCase
 	exercise.DeleteExerciseUseCase
 	exercise.DeleteHealthUseCase
+	exercise.GetWaterByUserIdUseCase
+	exercise.CreateOrUpdateWaterUseCase
 }

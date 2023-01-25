@@ -54,6 +54,8 @@ func main() {
 		FetchByDatetimeUseCase:            usecase2.FetchByDatetimeUseCase(exerciseRepo, userRepo),
 		DeleteExerciseUseCase:             usecase2.DeleteExerciseUseCase(exerciseRepo),
 		DeleteHealthUseCase:               usecase2.DeleteHealthUseCase(exerciseRepo),
+		GetWaterByUserIdUseCase:           usecase2.GetWaterByUserIdUseCase(exerciseRepo),
+		CreateOrUpdateWaterUseCase:        usecase2.CreateOrUpdateWaterUseCase(exerciseRepo),
 	}
 
 	controller.BindUserHandler(app, userUseCase)

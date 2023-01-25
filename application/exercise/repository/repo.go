@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"github.com/google/uuid"
 	"healthRoutine/application/domain/exercise"
+	"healthRoutine/application/domain/user"
 	entity "healthRoutine/pkgs/database/sqlc/exercise"
 	"healthRoutine/pkgs/util/timex"
 	"time"
@@ -135,4 +136,40 @@ func (r *repo) FetchTodayExerciseByUserId(ctx context.Context, userId uuid.UUID,
 
 func (r *repo) DeleteHealth(ctx context.Context, id uuid.UUID) error {
 	return r.preparedQuery.DeleteHealth(ctx, id)
+}
+
+// GetWaterByUserId
+// TODO: fix bypass
+func (r *repo) GetWaterByUserId(ctx context.Context, userId uuid.UUID) (resp entity.Water, err error) {
+	start, end := timex.GetDateForADayUnixMillisecond(time.Now().UnixMilli())
+	resp, err = r.preparedQuery.GetWaterByUserId(ctx, entity.GetWaterByUserIdParams{
+		UserID:      userId,
+		CreatedAt:   start,
+		CreatedAt_2: end,
+	})
+	switch {
+	case err == sql.ErrNoRows:
+		err = user.ErrUserNotFound
+		return
+	case err != nil:
+		return
+	}
+
+	return
+}
+
+func (r *repo) CreateOrUpdateWater(ctx context.Context, userId uuid.UUID, capacity int64) error {
+	now := time.Now().UnixMilli()
+	date := time.UnixMilli(now).Format("2006-01-02")
+
+	return r.preparedQuery.CreateOrUpdateWater(ctx, entity.CreateOrUpdateWaterParams{
+		UserID:      userId,
+		Capacity:    capacity,
+		Unit:        "ML",
+		Date:        date,
+		CreatedAt:   now,
+		UpdatedAt:   now,
+		Capacity_2:  capacity,
+		UpdatedAt_2: now,
+	})
 }

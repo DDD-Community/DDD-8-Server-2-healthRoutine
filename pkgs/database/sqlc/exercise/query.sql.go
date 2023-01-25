@@ -59,6 +59,36 @@ func (q *Queries) CreateExercise(ctx context.Context, arg CreateExerciseParams) 
 	return err
 }
 
+const createOrUpdateWater = `-- name: CreateOrUpdateWater :exec
+INSERT INTO water(user_id, capacity, unit, ` + "`" + `date` + "`" + `, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE capacity = ? , updated_at = ?
+`
+
+type CreateOrUpdateWaterParams struct {
+	UserID      uuid.UUID
+	Capacity    int64
+	Unit        string
+	Date        string
+	CreatedAt   int64
+	UpdatedAt   int64
+	Capacity_2  int64
+	UpdatedAt_2 int64
+}
+
+func (q *Queries) CreateOrUpdateWater(ctx context.Context, arg CreateOrUpdateWaterParams) error {
+	_, err := q.exec(ctx, q.createOrUpdateWaterStmt, createOrUpdateWater,
+		arg.UserID,
+		arg.Capacity,
+		arg.Unit,
+		arg.Date,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.Capacity_2,
+		arg.UpdatedAt_2,
+	)
+	return err
+}
+
 const deleteExercise = `-- name: DeleteExercise :exec
 DELETE FROM exercise
 WHERE id = ? AND user_id = ?
@@ -284,4 +314,29 @@ func (q *Queries) GetTodayExerciseCount(ctx context.Context, arg GetTodayExercis
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const getWaterByUserId = `-- name: GetWaterByUserId :one
+SELECT user_id, capacity, unit, date, created_at, updated_at FROM water
+WHERE user_id = ? AND created_at BETWEEN ? AND ?
+`
+
+type GetWaterByUserIdParams struct {
+	UserID      uuid.UUID
+	CreatedAt   int64
+	CreatedAt_2 int64
+}
+
+func (q *Queries) GetWaterByUserId(ctx context.Context, arg GetWaterByUserIdParams) (Water, error) {
+	row := q.queryRow(ctx, q.getWaterByUserIdStmt, getWaterByUserId, arg.UserID, arg.CreatedAt, arg.CreatedAt_2)
+	var i Water
+	err := row.Scan(
+		&i.UserID,
+		&i.Capacity,
+		&i.Unit,
+		&i.Date,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

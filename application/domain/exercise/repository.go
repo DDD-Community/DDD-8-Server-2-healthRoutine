@@ -29,4 +29,6 @@ type Repository interface {
 	FetchCategories(ctx context.Context) ([]ExerciseCategoryModel, error)
 	FetchTodayExerciseByUserId(ctx context.Context, userId uuid.UUID, time int64) ([]entity.FetchTodayExerciseByUserIdRow, error)
 	DeleteHealth(ctx context.Context, id uuid.UUID) error
+	GetWaterByUserId(ctx context.Context, userId uuid.UUID) (entity.Water, error)
+	CreateOrUpdateWater(ctx context.Context, userId uuid.UUID, capacity int64) error
 }

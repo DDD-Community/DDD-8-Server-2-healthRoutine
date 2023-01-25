@@ -271,3 +271,59 @@ func (h *Handler) fetchMonthly(c *fiber.Ctx) error {
 		logger.Error(err)
 	})
 }
+
+func (h *Handler) getWater(c *fiber.Ctx) error {
+	logger := h.log()
+	defer logger.Sync()
+
+	userId, err := middlewares.ExtractUserId(c)
+	if err != nil {
+		err = response.ErrUnauthorized
+		return response.ErrorResponse(c, err, nil)
+	}
+
+	resp, err := h.useCase.GetWaterByUserIdUseCase.Use(c.Context(), userId)
+	switch {
+	case err == nil:
+		return c.Status(http.StatusOK).JSON(controller.NewResponseBody(http.StatusOK, getWaterToGetWaterData(resp)))
+	case errors.Is(err, user.ErrUserNotFound):
+		err = response.ErrNotFoundUser
+		return response.ErrorResponse(c, err, nil)
+	}
+
+	return response.ErrorResponse(c, err, func(err error) {
+		logger.Error(err)
+	})
+}
+
+func (h *Handler) createOrUpdateWater(c *fiber.Ctx) error {
+	logger := h.log()
+	defer logger.Sync()
+
+	userId, err := middlewares.ExtractUserId(c)
+	if err != nil {
+		err = response.ErrUnauthorized
+		return response.ErrorResponse(c, err, nil)
+	}
+
+	var binder struct {
+		Capacity int64 `json:"capacity" xml:"-" validate:"required"`
+	}
+	if err = c.BodyParser(&binder); err != nil {
+		return err
+	}
+
+	validateErrors := util.ValidateStruct(&binder)
+	if validateErrors != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(validateErrors)
+	}
+
+	err = h.useCase.CreateOrUpdateWaterUseCase.Use(c.Context(), userId, binder.Capacity)
+	if err != nil {
+		return response.ErrorResponse(c, err, func(err error) {
+			logger.Error(err)
+		})
+	}
+
+	return c.Status(http.StatusCreated).JSON(controller.NewResponseBody(http.StatusCreated))
+}

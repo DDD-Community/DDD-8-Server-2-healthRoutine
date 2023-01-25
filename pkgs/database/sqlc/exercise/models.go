@@ -29,3 +29,12 @@ type Health struct {
 	Set        int32
 	CreatedAt  int64
 }
+
+type Water struct {
+	UserID    uuid.UUID
+	Capacity  int64
+	Unit      string
+	Date      string
+	CreatedAt int64
+	UpdatedAt int64
+}

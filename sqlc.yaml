@@ -31,3 +31,9 @@ sql:
 
           - column: "exercise.user_id"
             go_type: "*github.com/google/uuid.UUID"
+
+          - column: "water.id"
+            go_type: "github.com/google/uuid.UUID"
+
+          - column: "water.user_id"
+            go_type: "github.com/google/uuid.UUID"

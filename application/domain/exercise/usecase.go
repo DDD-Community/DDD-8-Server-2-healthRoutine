@@ -3,6 +3,7 @@ package exercise
 import (
 	"context"
 	"github.com/google/uuid"
+	entity "healthRoutine/pkgs/database/sqlc/exercise"
 )
 
 type CreateHistoryParams struct {
@@ -72,4 +73,12 @@ type DeleteExerciseUseCase interface {
 
 type DeleteHealthUseCase interface {
 	Use(ctx context.Context, id uuid.UUID) error
+}
+
+type GetWaterByUserIdUseCase interface {
+	Use(ctx context.Context, userId uuid.UUID) (entity.Water, error)
+}
+
+type CreateOrUpdateWaterUseCase interface {
+	Use(ctx context.Context, userId uuid.UUID, capacity int64) error
 }
