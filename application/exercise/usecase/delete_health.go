@@ -18,8 +18,8 @@ type deleteHealthUseCase struct {
 	repo exercise.Repository
 }
 
-func (u *deleteHealthUseCase) Use(ctx context.Context, userId uuid.UUID, id int64, time int64) (err error) {
-	err = u.repo.DeleteHealth(ctx, userId, id, time)
+func (u *deleteHealthUseCase) Use(ctx context.Context, id uuid.UUID) (err error) {
+	err = u.repo.DeleteHealth(ctx, id)
 	if err != nil {
 		return
 	}

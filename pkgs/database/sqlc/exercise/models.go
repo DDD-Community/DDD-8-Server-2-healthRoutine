@@ -25,7 +25,7 @@ type Health struct {
 	UserID     uuid.UUID
 	ExerciseID int64
 	Weight     int32
+	Reps       int32
 	Set        int32
-	Minute     int32
 	CreatedAt  int64
 }

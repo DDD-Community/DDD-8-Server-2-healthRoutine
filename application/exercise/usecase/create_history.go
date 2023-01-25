@@ -18,5 +18,5 @@ type createHistoryUseCaseImpl struct {
 }
 
 func (u *createHistoryUseCaseImpl) Use(ctx context.Context, params exercise.CreateHistoryParams) error {
-	return u.Repository.Create(ctx, params.UserId, params.ExerciseId, params.Weight, params.Set, params.Minute)
+	return u.Repository.Create(ctx, params.UserId, params.ExerciseId, params.Weight, params.Reps, params.Set)
 }

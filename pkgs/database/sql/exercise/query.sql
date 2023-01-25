@@ -1,5 +1,5 @@
 -- name: Create :exec
-INSERT INTO health(id, user_id, exercise_id, weight, `set`, `minute`, created_at) VALUES (?,?,?,?,?,?,?);
+INSERT INTO health(id, user_id, exercise_id, weight, reps, `set`, created_at) VALUES (?,?,?,?,?,?,?);
 
 -- name: CreateExercise :exec
 INSERT INTO exercise(id, subject, category_id, user_id) VALUES (?,?,?,?);
@@ -23,22 +23,17 @@ SELECT * FROM exercise_category;
 -- name: FetchExerciseByCategoryId :many
 SELECT * FROM exercise
 WHERE category_id = ?
-LIMIT ?;
+LIMIT 8;
 
 -- name: FetchTodayExerciseByUserId :many
-SELECT
-    ec.subject,
-    e.subject,
-    e.id,
-    SUM(h.weight) AS weight,
-    SUM(h.`set`) AS `set`,
-    COUNT(h.exercise_id) AS count,
-    h.created_at
+SELECT h.*,
+       ec.subject AS category_subject,
+       e.subject AS exercise_subject
 FROM health h
          INNER JOIN exercise e ON h.exercise_id = e.id
          INNER JOIN exercise_category ec ON e.category_id = ec.id
 WHERE h.user_id = ? AND h.created_at BETWEEN ? AND ?
-GROUP BY h.exercise_id;
+ORDER BY h.created_at;
 
 -- name: GetExerciseById :one
 SELECT * FROM exercise
@@ -50,7 +45,4 @@ WHERE id = ? AND user_id = ?;
 
 -- name: DeleteHealth :exec
 DELETE FROM health
-WHERE
-    user_id = ? AND
-    exercise_id = ? AND
-    created_at BETWEEN ? AND ?;
+WHERE id = ?;

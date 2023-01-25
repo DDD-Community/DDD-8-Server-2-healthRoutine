@@ -16,8 +16,8 @@ CREATE TABLE health (
     user_id CHAR(36) NOT NULL ,
     exercise_id BIGINT NOT NULL ,
     weight SMALLINT NOT NULL DEFAULT 0,
+    reps SMALLINT NOT NULL DEFAULT 0,
     `set` SMALLINT NOT NULL DEFAULT 0,
-    `minute` SMALLINT NOT NULL DEFAULT 0,
     created_at BIGINT NOT NULL
 );
 

@@ -34,14 +34,14 @@ func (r *repo) Create(
 	ctx context.Context,
 	userId uuid.UUID,
 	exerciseId int64,
-	weight, set, minute int32) error {
+	weight, reps, set int32) error {
 	return r.preparedQuery.Create(ctx, entity.CreateParams{
 		ID:         uuid.New(),
 		UserID:     userId,
 		ExerciseID: exerciseId,
 		Weight:     weight,
+		Reps:       reps,
 		Set:        set,
-		Minute:     minute,
 		CreatedAt:  time.Now().UnixMilli(),
 	})
 }
@@ -133,13 +133,6 @@ func (r *repo) FetchTodayExerciseByUserId(ctx context.Context, userId uuid.UUID,
 	})
 }
 
-func (r *repo) DeleteHealth(ctx context.Context, userId uuid.UUID, id int64, time int64) error {
-	start, end := timex.GetDateForADayUnixMillisecond(time)
-
-	return r.preparedQuery.DeleteHealth(ctx, entity.DeleteHealthParams{
-		UserID:      userId,
-		ExerciseID:  id,
-		CreatedAt:   start,
-		CreatedAt_2: end,
-	})
+func (r *repo) DeleteHealth(ctx context.Context, id uuid.UUID) error {
+	return r.preparedQuery.DeleteHealth(ctx, id)
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"healthRoutine/application/domain/exercise"
-	"healthRoutine/pkgs/util/dbx"
 )
 
 func FetchTodayExerciseByUserIdUseCase(repo exercise.Repository) exercise.FetchTodayExerciseByUserIdUseCase {
@@ -26,13 +25,12 @@ func (u *fetchTodayExerciseByUserIdUseCaseImpl) Use(ctx context.Context, userId 
 	res = make([]exercise.FetchTodayExerciseResult, 0, len(resp))
 	for _, v := range resp {
 		res = append(res, exercise.FetchTodayExerciseResult{
-			ExerciseId:      v.ID,
-			ExerciseSubject: v.Subject_2,
-			CategorySubject: v.Subject,
-			Weight:          dbx.ConvertInterfaceToInt64(v.Weight),
-			Set:             dbx.ConvertInterfaceToInt64(v.Set),
-			Count:           v.Count,
-			CreatedAt:       v.CreatedAt,
+			Id:              v.ID,
+			ExerciseSubject: v.ExerciseSubject,
+			CategorySubject: v.CategorySubject,
+			Weight:          v.Weight,
+			Set:             v.Set,
+			Reps:            v.Reps,
 		})
 	}
 

@@ -9,8 +9,8 @@ type CreateHistoryParams struct {
 	UserId     uuid.UUID
 	ExerciseId int64
 	Weight     int32
+	Reps       int32
 	Set        int32
-	Minute     int32
 }
 
 type CreateHistoryUseCase interface {
@@ -36,13 +36,12 @@ type FetchCategoriesUseCase interface {
 }
 
 type FetchTodayExerciseResult struct {
-	ExerciseId      int64
+	Id              uuid.UUID
 	ExerciseSubject string
 	CategorySubject string
-	Weight          int64
-	Set             int64
-	Count           int64
-	CreatedAt       int64
+	Weight          int32
+	Set             int32
+	Reps            int32
 }
 
 type FetchTodayExerciseByUserIdUseCase interface {
@@ -72,5 +71,5 @@ type DeleteExerciseUseCase interface {
 }
 
 type DeleteHealthUseCase interface {
-	Use(ctx context.Context, userId uuid.UUID, id int64, time int64) error
+	Use(ctx context.Context, id uuid.UUID) error
 }

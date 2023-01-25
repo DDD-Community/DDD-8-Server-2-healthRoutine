@@ -34,24 +34,19 @@ func (h *Handler) deleteExercise(c *fiber.Ctx) error {
 	}
 
 	var binder struct {
-		ExerciseId int64 `json:"exerciseId" xml:"-" validate:"required"`
+		ExerciseId int64 `json:"-" xml:"-" param:"exerciseId"`
 	}
-	if err = c.BodyParser(&binder); err != nil {
+	if err = c.ParamsParser(&binder); err != nil {
 		return err
 	}
 
-	validatorErrors := util.ValidateStruct(&binder)
-	if validatorErrors != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(validatorErrors)
-	}
-
 	err = h.useCase.DeleteExerciseUseCase.Use(c.Context(), binder.ExerciseId, userId)
-	logger.Info(err)
 	switch {
 	case err == nil:
-		return c.Status(http.StatusNoContent).JSON(controller.NewResponseBody(http.StatusNoContent))
+		return c.SendStatus(http.StatusNoContent)
 	case errors.Is(err, exercise.ErrNotMatchUserId):
 		err = response.ErrNotMatchUserId
+		logger.Error(err)
 		return response.ErrorResponse(c, err, nil)
 	}
 
@@ -118,8 +113,8 @@ func (h *Handler) createExerciseHistory(c *fiber.Ctx) error {
 	var binder struct {
 		ExerciseId int64 `json:"exerciseId" xml:"-" validate:"required"`
 		Weight     int32 `json:"weight" xml:"-"`
+		Reps       int32 `json:"reps" xml:"-"`
 		Set        int32 `json:"set" xml:"-"`
-		Minute     int32 `json:"minute" xml:"-"`
 	}
 	if err = c.BodyParser(&binder); err != nil {
 		return err
@@ -134,8 +129,8 @@ func (h *Handler) createExerciseHistory(c *fiber.Ctx) error {
 		UserId:     userId,
 		ExerciseId: binder.ExerciseId,
 		Weight:     binder.Weight,
+		Reps:       binder.Reps,
 		Set:        binder.Set,
-		Minute:     binder.Minute,
 	})
 	if err != nil {
 		return response.ErrorResponse(c, err, func(err error) {
@@ -226,25 +221,14 @@ func (h *Handler) deleteHealth(c *fiber.Ctx) error {
 	logger := h.log()
 	defer logger.Sync()
 
-	userId, err := middlewares.ExtractUserId(c)
-	if err != nil {
-		return response.ErrUnauthorized
-	}
-
 	var binder struct {
-		ExerciseId int64 `json:"exerciseId" xml:"-" validate:"required"`
-		CreatedAt  int64 `json:"createdAt" xml:"-" validate:"required"`
+		HealthId uuid.UUID `json:"-" xml:"-" param:"healthId"`
 	}
-	if err = c.BodyParser(&binder); err != nil {
+	if err := c.ParamsParser(&binder); err != nil {
 		return response.ErrorResponse(c, err, nil)
 	}
 
-	validateErrors := util.ValidateStruct(&binder)
-	if validateErrors != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(validateErrors)
-	}
-
-	err = h.useCase.DeleteHealthUseCase.Use(c.Context(), userId, binder.ExerciseId, binder.CreatedAt)
+	err := h.useCase.DeleteHealthUseCase.Use(c.Context(), binder.HealthId)
 	if err != nil {
 		return response.ErrorResponse(c, err, func(err error) {
 			logger.Error("failed to delete health")
@@ -252,7 +236,7 @@ func (h *Handler) deleteHealth(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(http.StatusNoContent).JSON(controller.NewResponseBody(http.StatusNoContent))
+	return c.SendStatus(http.StatusNoContent)
 }
 
 func (h *Handler) fetchMonthly(c *fiber.Ctx) error {

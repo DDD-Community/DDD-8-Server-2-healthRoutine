@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/google/uuid"
 	"healthRoutine/application/domain/exercise"
 )
 
@@ -41,26 +42,24 @@ func exerciseCategoryDomainToData(model []exercise.ExerciseCategoryModel) (res [
 }
 
 type fetchTodayExerciseData struct {
-	ExerciseId      int64  `json:"exerciseId"`
-	ExerciseSubject string `json:"exerciseSubject"`
-	CategorySubject string `json:"categorySubject"`
-	Weight          int64  `json:"weight"`
-	Set             int64  `json:"set"`
-	Count           int64  `json:"count"`
-	CreatedAt       int64  `json:"createdAt"`
+	Id              uuid.UUID `json:"id"`
+	ExerciseSubject string    `json:"exerciseSubject"`
+	CategorySubject string    `json:"categorySubject"`
+	Weight          int32     `json:"weight"`
+	Reps            int32     `json:"reps"`
+	Set             int32     `json:"set"`
 }
 
 func fetchTodayExerciseResultToData(list []exercise.FetchTodayExerciseResult) (res []fetchTodayExerciseData) {
 	res = make([]fetchTodayExerciseData, 0, len(list))
 	for _, v := range list {
 		res = append(res, fetchTodayExerciseData{
-			ExerciseId:      v.ExerciseId,
+			Id:              v.Id,
 			ExerciseSubject: v.ExerciseSubject,
 			CategorySubject: v.CategorySubject,
 			Weight:          v.Weight,
+			Reps:            v.Reps,
 			Set:             v.Set,
-			Count:           v.Count,
-			CreatedAt:       v.CreatedAt,
 		})
 	}
 

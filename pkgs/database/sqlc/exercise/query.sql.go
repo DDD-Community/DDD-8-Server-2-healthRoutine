@@ -12,7 +12,7 @@ import (
 )
 
 const create = `-- name: Create :exec
-INSERT INTO health(id, user_id, exercise_id, weight, ` + "`" + `set` + "`" + `, ` + "`" + `minute` + "`" + `, created_at) VALUES (?,?,?,?,?,?,?)
+INSERT INTO health(id, user_id, exercise_id, weight, reps, ` + "`" + `set` + "`" + `, created_at) VALUES (?,?,?,?,?,?,?)
 `
 
 type CreateParams struct {
@@ -20,8 +20,8 @@ type CreateParams struct {
 	UserID     uuid.UUID
 	ExerciseID int64
 	Weight     int32
+	Reps       int32
 	Set        int32
-	Minute     int32
 	CreatedAt  int64
 }
 
@@ -31,8 +31,8 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) error {
 		arg.UserID,
 		arg.ExerciseID,
 		arg.Weight,
+		arg.Reps,
 		arg.Set,
-		arg.Minute,
 		arg.CreatedAt,
 	)
 	return err
@@ -76,26 +76,11 @@ func (q *Queries) DeleteExercise(ctx context.Context, arg DeleteExerciseParams) 
 
 const deleteHealth = `-- name: DeleteHealth :exec
 DELETE FROM health
-WHERE
-    user_id = ? AND
-    exercise_id = ? AND
-    created_at BETWEEN ? AND ?
+WHERE id = ?
 `
 
-type DeleteHealthParams struct {
-	UserID      uuid.UUID
-	ExerciseID  int64
-	CreatedAt   int64
-	CreatedAt_2 int64
-}
-
-func (q *Queries) DeleteHealth(ctx context.Context, arg DeleteHealthParams) error {
-	_, err := q.exec(ctx, q.deleteHealthStmt, deleteHealth,
-		arg.UserID,
-		arg.ExerciseID,
-		arg.CreatedAt,
-		arg.CreatedAt_2,
-	)
+func (q *Queries) DeleteHealth(ctx context.Context, id uuid.UUID) error {
+	_, err := q.exec(ctx, q.deleteHealthStmt, deleteHealth, id)
 	return err
 }
 
@@ -205,19 +190,14 @@ func (q *Queries) FetchExerciseByCategoryId(ctx context.Context, categoryID int6
 }
 
 const fetchTodayExerciseByUserId = `-- name: FetchTodayExerciseByUserId :many
-SELECT
-    ec.subject,
-    e.subject,
-    e.id,
-    SUM(h.weight) AS weight,
-    SUM(h.` + "`" + `set` + "`" + `) AS ` + "`" + `set` + "`" + `,
-    COUNT(h.exercise_id) AS count,
-    h.created_at
+SELECT h.id, h.user_id, h.exercise_id, h.weight, h.reps, h.` + "`" + `set` + "`" + `, h.created_at,
+       ec.subject AS category_subject,
+       e.subject AS exercise_subject
 FROM health h
          INNER JOIN exercise e ON h.exercise_id = e.id
          INNER JOIN exercise_category ec ON e.category_id = ec.id
 WHERE h.user_id = ? AND h.created_at BETWEEN ? AND ?
-GROUP BY h.exercise_id
+ORDER BY h.created_at
 `
 
 type FetchTodayExerciseByUserIdParams struct {
@@ -227,13 +207,15 @@ type FetchTodayExerciseByUserIdParams struct {
 }
 
 type FetchTodayExerciseByUserIdRow struct {
-	Subject   string
-	Subject_2 string
-	ID        int64
-	Weight    interface{}
-	Set       interface{}
-	Count     int64
-	CreatedAt int64
+	ID              uuid.UUID
+	UserID          uuid.UUID
+	ExerciseID      int64
+	Weight          int32
+	Reps            int32
+	Set             int32
+	CreatedAt       int64
+	CategorySubject string
+	ExerciseSubject string
 }
 
 func (q *Queries) FetchTodayExerciseByUserId(ctx context.Context, arg FetchTodayExerciseByUserIdParams) ([]FetchTodayExerciseByUserIdRow, error) {
@@ -246,13 +228,15 @@ func (q *Queries) FetchTodayExerciseByUserId(ctx context.Context, arg FetchToday
 	for rows.Next() {
 		var i FetchTodayExerciseByUserIdRow
 		if err := rows.Scan(
-			&i.Subject,
-			&i.Subject_2,
 			&i.ID,
+			&i.UserID,
+			&i.ExerciseID,
 			&i.Weight,
+			&i.Reps,
 			&i.Set,
-			&i.Count,
 			&i.CreatedAt,
+			&i.CategorySubject,
+			&i.ExerciseSubject,
 		); err != nil {
 			return nil, err
 		}
