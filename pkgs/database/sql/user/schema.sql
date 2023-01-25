@@ -8,4 +8,6 @@ CREATE TABLE users (
     updated_at BIGINT NOT NULL
 );
 
+CREATE INDEX users_id_idx ON users (id);
 CREATE INDEX users_email_idx ON users (email);
+CREATE INDEX users_nickname_idx ON users (nickname);
