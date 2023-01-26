@@ -282,15 +282,14 @@ func (h *Handler) getWater(c *fiber.Ctx) error {
 		return response.ErrorResponse(c, err, nil)
 	}
 
+	var getWater GetWaterData
 	resp, err := h.useCase.GetWaterByUserIdUseCase.Use(c.Context(), userId)
 	switch {
 	case err == nil:
-		return c.Status(http.StatusOK).JSON(controller.NewResponseBody(http.StatusOK, getWaterToGetWaterData(resp)))
-	case errors.Is(err, user.ErrUserNotFound):
-		err = response.ErrNotFoundUser
-		return response.ErrorResponse(c, err, nil)
+		return c.Status(http.StatusOK).JSON(controller.NewResponseBody(http.StatusOK, getWater.getWaterToGetWaterData(resp)))
+	case errors.Is(err, user.ErrNoRecordDrink):
+		return c.Status(http.StatusOK).JSON(controller.NewResponseBody(http.StatusOK, getWater.isZero()))
 	}
-
 	return response.ErrorResponse(c, err, func(err error) {
 		logger.Error(err)
 	})
@@ -307,7 +306,7 @@ func (h *Handler) createOrUpdateWater(c *fiber.Ctx) error {
 	}
 
 	var binder struct {
-		Capacity int64 `json:"capacity" xml:"-" validate:"required"`
+		Capacity *int64 `json:"capacity" xml:"-" validate:"required,min=0"`
 	}
 	if err = c.BodyParser(&binder); err != nil {
 		return err
@@ -318,7 +317,7 @@ func (h *Handler) createOrUpdateWater(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(validateErrors)
 	}
 
-	err = h.useCase.CreateOrUpdateWaterUseCase.Use(c.Context(), userId, binder.Capacity)
+	err = h.useCase.CreateOrUpdateWaterUseCase.Use(c.Context(), userId, *binder.Capacity)
 	if err != nil {
 		return response.ErrorResponse(c, err, func(err error) {
 			logger.Error(err)

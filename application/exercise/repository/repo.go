@@ -149,7 +149,7 @@ func (r *repo) GetWaterByUserId(ctx context.Context, userId uuid.UUID) (resp ent
 	})
 	switch {
 	case err == sql.ErrNoRows:
-		err = user.ErrUserNotFound
+		err = user.ErrNoRecordDrink
 		return
 	case err != nil:
 		return

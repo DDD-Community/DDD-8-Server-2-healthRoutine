@@ -101,14 +101,21 @@ func fetchByDatetimeResultTypes(result exercise.FetchByDatetimeResult) fetchByDa
 
 }
 
-type getWaterData struct {
+type GetWaterData struct {
 	Capacity int64  `json:"capacity"`
 	Unit     string `json:"unit"`
 }
 
-func getWaterToGetWaterData(data entity.Water) getWaterData {
-	return getWaterData{
+func (g *GetWaterData) getWaterToGetWaterData(data entity.Water) GetWaterData {
+	return GetWaterData{
 		Capacity: data.Capacity,
 		Unit:     data.Unit,
+	}
+}
+
+func (g *GetWaterData) isZero() GetWaterData {
+	return GetWaterData{
+		Capacity: 0,
+		Unit:     "ML", //TODO: fix hardcode need enum
 	}
 }
