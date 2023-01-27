@@ -66,6 +66,51 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) error {
 	return err
 }
 
+const createBadge = `-- name: CreateBadge :exec
+INSERT INTO badge_users (users_id, badge_id, created_at) VALUES (?, ?, ?)
+`
+
+type CreateBadgeParams struct {
+	UsersID   uuid.UUID
+	BadgeID   int64
+	CreatedAt int64
+}
+
+func (q *Queries) CreateBadge(ctx context.Context, arg CreateBadgeParams) error {
+	_, err := q.exec(ctx, q.createBadgeStmt, createBadge, arg.UsersID, arg.BadgeID, arg.CreatedAt)
+	return err
+}
+
+const getBadgeByUserId = `-- name: GetBadgeByUserId :many
+SELECT bu.badge_id FROM badge_users bu
+INNER JOIN badge b on bu.badge_id = b.id
+WHERE users_id = ?
+ORDER BY b.id
+`
+
+func (q *Queries) GetBadgeByUserId(ctx context.Context, usersID uuid.UUID) ([]int64, error) {
+	rows, err := q.query(ctx, q.getBadgeByUserIdStmt, getBadgeByUserId, usersID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int64
+	for rows.Next() {
+		var badge_id int64
+		if err := rows.Scan(&badge_id); err != nil {
+			return nil, err
+		}
+		items = append(items, badge_id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getByEmail = `-- name: GetByEmail :one
 SELECT id, nickname, email, password, profile_img, created_at, updated_at from users
 WHERE email = ?
@@ -104,6 +149,20 @@ func (q *Queries) GetById(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const getLatestBadgeByUserId = `-- name: GetLatestBadgeByUserId :one
+SELECT b.subject FROM badge_users bu
+    INNER JOIN badge b on bu.badge_id = b.id
+WHERE users_id = ?
+ORDER BY created_at LIMIT 1
+`
+
+func (q *Queries) GetLatestBadgeByUserId(ctx context.Context, usersID uuid.UUID) (string, error) {
+	row := q.queryRow(ctx, q.getLatestBadgeByUserIdStmt, getLatestBadgeByUserId, usersID)
+	var subject string
+	err := row.Scan(&subject)
+	return subject, err
 }
 
 const getNicknameById = `-- name: GetNicknameById :one

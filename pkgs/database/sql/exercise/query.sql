@@ -55,3 +55,11 @@ WHERE user_id = ? AND created_at BETWEEN ? AND ?;
 INSERT INTO water(user_id, capacity, unit, `date`, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)
 ON DUPLICATE KEY UPDATE capacity = ? , updated_at = ?;
 
+-- name: CountExerciseHistoryByUserId :one
+SELECT COUNT(user_id) AS exercise_count FROM health
+WHERE user_id = ?;
+
+-- name: CountDrinkHistoryByUserId :one
+SELECT COUNT(user_id) AS drink_count FROM water
+WHERE user_id = ?;
+

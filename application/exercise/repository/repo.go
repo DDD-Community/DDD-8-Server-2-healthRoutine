@@ -173,3 +173,11 @@ func (r *repo) CreateOrUpdateWater(ctx context.Context, userId uuid.UUID, capaci
 		UpdatedAt_2: now,
 	})
 }
+
+func (r *repo) CountExerciseHistoryByUserId(ctx context.Context, userId uuid.UUID) (int64, error) {
+	return r.preparedQuery.CountExerciseHistoryByUserId(ctx, userId)
+}
+
+func (r *repo) CountDrinkHistoryByUserId(ctx context.Context, userId uuid.UUID) (int64, error) {
+	return r.preparedQuery.CountDrinkHistoryByUserId(ctx, userId)
+}

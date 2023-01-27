@@ -8,6 +8,17 @@ import (
 	"github.com/google/uuid"
 )
 
+type Badge struct {
+	ID      int64
+	Subject string
+}
+
+type BadgeUser struct {
+	UsersID   uuid.UUID
+	BadgeID   int64
+	CreatedAt int64
+}
+
 type User struct {
 	ID         uuid.UUID
 	Nickname   string

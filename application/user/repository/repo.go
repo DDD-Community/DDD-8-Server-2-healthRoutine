@@ -98,3 +98,25 @@ func (r *repo) UpdateProfileById(ctx context.Context, id uuid.UUID, nickname, ur
 		ID:         id,
 	})
 }
+
+func (r *repo) CreateBadge(ctx context.Context, userId uuid.UUID, badgeId []int64) error {
+	for _, ids := range badgeId {
+		err := r.preparedQuery.CreateBadge(ctx, entity.CreateBadgeParams{
+			UsersID:   userId,
+			BadgeID:   ids,
+			CreatedAt: time.Now().UnixMilli(),
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (r *repo) GetBadgeByUserId(ctx context.Context, userId uuid.UUID) ([]int64, error) {
+	return r.preparedQuery.GetBadgeByUserId(ctx, userId)
+}
+
+func (r *repo) GetLatestBadgeByUserId(ctx context.Context, userId uuid.UUID) (string, error) {
+	return r.preparedQuery.GetLatestBadgeByUserId(ctx, userId)
+}

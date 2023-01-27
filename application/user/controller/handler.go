@@ -251,3 +251,47 @@ func (h *Handler) uploadProfileImg(c *fiber.Ctx) error {
 	// response body 로 처리하고있기에, 임시로 200 OK 로 처리 중
 	return c.Status(http.StatusOK).JSON(NewResponseBody(http.StatusOK, res))
 }
+
+func (h *Handler) getBadge(c *fiber.Ctx) error {
+	logger := h.log()
+	defer logger.Sync()
+
+	userId, err := middlewares.ExtractUserId(c)
+	if err != nil {
+		return response.ErrUnauthorized
+	}
+
+	resp, err := h.useCase.GetBadgeUseCase.Use(c.Context(), userId)
+	if err != nil {
+		return response.ErrorResponse(c, err, func(err error) {
+			logger.Error("failed to get badge")
+			logger.Error(err)
+		})
+	}
+	return c.Status(http.StatusOK).JSON(NewResponseBody(http.StatusOK, resp))
+}
+
+func (h *Handler) getLatestBadge(c *fiber.Ctx) error {
+	logger := h.log()
+	defer logger.Sync()
+
+	userId, err := middlewares.ExtractUserId(c)
+	if err != nil {
+		return response.ErrUnauthorized
+	}
+
+	resp, err := h.useCase.GetLatestBadgeUseCase.Use(c.Context(), userId)
+	if err != nil {
+		return response.ErrorResponse(c, err, func(err error) {
+			logger.Error(err)
+		})
+	}
+
+	var res struct {
+		Subject string `json:"subject"`
+	}
+
+	res.Subject = resp
+
+	return c.Status(http.StatusOK).JSON(NewResponseBody(http.StatusOK, res))
+}

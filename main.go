@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -12,6 +13,7 @@ import (
 	"healthRoutine/application/user/repository"
 	"healthRoutine/application/user/usecase"
 	"healthRoutine/cmd"
+	"healthRoutine/internal"
 	"healthRoutine/pkgs/database"
 	"net/http"
 )
@@ -35,6 +37,7 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	exerciseRepo := repository2.NewExerciseRepository(db)
 	defaultS3 := s3.NewFromConfig(cmd.GetAWSConfig())
+	defaultSQS := sqs.NewFromConfig(cmd.GetAWSConfig())
 
 	userUseCase := usecase.UserUseCases{
 		SignUpUseCase:                 usecase.SignUpUseCase(userRepo),
@@ -43,10 +46,12 @@ func main() {
 		GetProfileUseCase:             usecase.GetProfileUseCase(userRepo),
 		UploadTemporaryProfileUseCase: usecase.UploadTemporaryProfileUseCase(userRepo, defaultS3),
 		UpdateProfileUseCase:          usecase.UpdateProfileUseCase(userRepo, defaultS3),
+		GetBadgeUseCase:               usecase.GetBadgeUseCase(userRepo),
+		GetLatestBadgeUseCase:         usecase.GetLatestBadgeUseCase(userRepo),
 	}
 
 	exerciseUseCase := usecase2.ExerciseUseCase{
-		CreateHistoryUseCase:              usecase2.CreateHistoryUseCase(exerciseRepo),
+		CreateHistoryUseCase:              usecase2.CreateHistoryUseCase(exerciseRepo, defaultSQS),
 		CreateExerciseUseCase:             usecase2.CreateExerciseUseCase(exerciseRepo),
 		FetchExerciseByCategoryIdUseCase:  usecase2.FetchExerciseByCategoryIdUseCase(exerciseRepo),
 		FetchCategoriesUseCase:            usecase2.FetchCategoriesUseCase(exerciseRepo),
@@ -55,11 +60,16 @@ func main() {
 		DeleteExerciseUseCase:             usecase2.DeleteExerciseUseCase(exerciseRepo),
 		DeleteHealthUseCase:               usecase2.DeleteHealthUseCase(exerciseRepo),
 		GetWaterByUserIdUseCase:           usecase2.GetWaterByUserIdUseCase(exerciseRepo),
-		CreateOrUpdateWaterUseCase:        usecase2.CreateOrUpdateWaterUseCase(exerciseRepo),
+		CreateOrUpdateWaterUseCase:        usecase2.CreateOrUpdateWaterUseCase(exerciseRepo, defaultSQS),
 	}
 
 	controller.BindUserHandler(app, userUseCase)
 	controller2.BindExerciseHandler(app, exerciseUseCase)
 
+	go internal.StartScheduler(internal.SchedulerParams{
+		UserRepo:     userRepo,
+		ExerciseRepo: exerciseRepo,
+		SQSClient:    defaultSQS,
+	})
 	app.Listen(addr)
 }

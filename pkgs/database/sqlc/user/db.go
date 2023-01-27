@@ -33,11 +33,20 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createStmt, err = db.PrepareContext(ctx, create); err != nil {
 		return nil, fmt.Errorf("error preparing query Create: %w", err)
 	}
+	if q.createBadgeStmt, err = db.PrepareContext(ctx, createBadge); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateBadge: %w", err)
+	}
+	if q.getBadgeByUserIdStmt, err = db.PrepareContext(ctx, getBadgeByUserId); err != nil {
+		return nil, fmt.Errorf("error preparing query GetBadgeByUserId: %w", err)
+	}
 	if q.getByEmailStmt, err = db.PrepareContext(ctx, getByEmail); err != nil {
 		return nil, fmt.Errorf("error preparing query GetByEmail: %w", err)
 	}
 	if q.getByIdStmt, err = db.PrepareContext(ctx, getById); err != nil {
 		return nil, fmt.Errorf("error preparing query GetById: %w", err)
+	}
+	if q.getLatestBadgeByUserIdStmt, err = db.PrepareContext(ctx, getLatestBadgeByUserId); err != nil {
+		return nil, fmt.Errorf("error preparing query GetLatestBadgeByUserId: %w", err)
 	}
 	if q.getNicknameByIdStmt, err = db.PrepareContext(ctx, getNicknameById); err != nil {
 		return nil, fmt.Errorf("error preparing query GetNicknameById: %w", err)
@@ -65,6 +74,16 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing createStmt: %w", cerr)
 		}
 	}
+	if q.createBadgeStmt != nil {
+		if cerr := q.createBadgeStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createBadgeStmt: %w", cerr)
+		}
+	}
+	if q.getBadgeByUserIdStmt != nil {
+		if cerr := q.getBadgeByUserIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getBadgeByUserIdStmt: %w", cerr)
+		}
+	}
 	if q.getByEmailStmt != nil {
 		if cerr := q.getByEmailStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getByEmailStmt: %w", cerr)
@@ -73,6 +92,11 @@ func (q *Queries) Close() error {
 	if q.getByIdStmt != nil {
 		if cerr := q.getByIdStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getByIdStmt: %w", cerr)
+		}
+	}
+	if q.getLatestBadgeByUserIdStmt != nil {
+		if cerr := q.getLatestBadgeByUserIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getLatestBadgeByUserIdStmt: %w", cerr)
 		}
 	}
 	if q.getNicknameByIdStmt != nil {
@@ -122,27 +146,33 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db                        DBTX
-	tx                        *sql.Tx
-	checkExistsByEmailStmt    *sql.Stmt
-	checkExistsByNicknameStmt *sql.Stmt
-	createStmt                *sql.Stmt
-	getByEmailStmt            *sql.Stmt
-	getByIdStmt               *sql.Stmt
-	getNicknameByIdStmt       *sql.Stmt
-	updateProfileByIdStmt     *sql.Stmt
+	db                         DBTX
+	tx                         *sql.Tx
+	checkExistsByEmailStmt     *sql.Stmt
+	checkExistsByNicknameStmt  *sql.Stmt
+	createStmt                 *sql.Stmt
+	createBadgeStmt            *sql.Stmt
+	getBadgeByUserIdStmt       *sql.Stmt
+	getByEmailStmt             *sql.Stmt
+	getByIdStmt                *sql.Stmt
+	getLatestBadgeByUserIdStmt *sql.Stmt
+	getNicknameByIdStmt        *sql.Stmt
+	updateProfileByIdStmt      *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:                        tx,
-		tx:                        tx,
-		checkExistsByEmailStmt:    q.checkExistsByEmailStmt,
-		checkExistsByNicknameStmt: q.checkExistsByNicknameStmt,
-		createStmt:                q.createStmt,
-		getByEmailStmt:            q.getByEmailStmt,
-		getByIdStmt:               q.getByIdStmt,
-		getNicknameByIdStmt:       q.getNicknameByIdStmt,
-		updateProfileByIdStmt:     q.updateProfileByIdStmt,
+		db:                         tx,
+		tx:                         tx,
+		checkExistsByEmailStmt:     q.checkExistsByEmailStmt,
+		checkExistsByNicknameStmt:  q.checkExistsByNicknameStmt,
+		createStmt:                 q.createStmt,
+		createBadgeStmt:            q.createBadgeStmt,
+		getBadgeByUserIdStmt:       q.getBadgeByUserIdStmt,
+		getByEmailStmt:             q.getByEmailStmt,
+		getByIdStmt:                q.getByIdStmt,
+		getLatestBadgeByUserIdStmt: q.getLatestBadgeByUserIdStmt,
+		getNicknameByIdStmt:        q.getNicknameByIdStmt,
+		updateProfileByIdStmt:      q.updateProfileByIdStmt,
 	}
 }

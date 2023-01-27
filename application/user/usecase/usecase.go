@@ -11,4 +11,6 @@ type UserUseCases struct {
 	user.GetProfileUseCase
 	user.UploadTemporaryProfileUseCase
 	user.UpdateProfileUseCase
+	user.GetBadgeUseCase
+	user.GetLatestBadgeUseCase
 }

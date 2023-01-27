@@ -24,6 +24,12 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
+	if q.countDrinkHistoryByUserIdStmt, err = db.PrepareContext(ctx, countDrinkHistoryByUserId); err != nil {
+		return nil, fmt.Errorf("error preparing query CountDrinkHistoryByUserId: %w", err)
+	}
+	if q.countExerciseHistoryByUserIdStmt, err = db.PrepareContext(ctx, countExerciseHistoryByUserId); err != nil {
+		return nil, fmt.Errorf("error preparing query CountExerciseHistoryByUserId: %w", err)
+	}
 	if q.createStmt, err = db.PrepareContext(ctx, create); err != nil {
 		return nil, fmt.Errorf("error preparing query Create: %w", err)
 	}
@@ -65,6 +71,16 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 
 func (q *Queries) Close() error {
 	var err error
+	if q.countDrinkHistoryByUserIdStmt != nil {
+		if cerr := q.countDrinkHistoryByUserIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing countDrinkHistoryByUserIdStmt: %w", cerr)
+		}
+	}
+	if q.countExerciseHistoryByUserIdStmt != nil {
+		if cerr := q.countExerciseHistoryByUserIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing countExerciseHistoryByUserIdStmt: %w", cerr)
+		}
+	}
 	if q.createStmt != nil {
 		if cerr := q.createStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createStmt: %w", cerr)
@@ -162,37 +178,41 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db                             DBTX
-	tx                             *sql.Tx
-	createStmt                     *sql.Stmt
-	createExerciseStmt             *sql.Stmt
-	createOrUpdateWaterStmt        *sql.Stmt
-	deleteExerciseStmt             *sql.Stmt
-	deleteHealthStmt               *sql.Stmt
-	fetchByDateTimeStmt            *sql.Stmt
-	fetchCategoriesStmt            *sql.Stmt
-	fetchExerciseByCategoryIdStmt  *sql.Stmt
-	fetchTodayExerciseByUserIdStmt *sql.Stmt
-	getExerciseByIdStmt            *sql.Stmt
-	getTodayExerciseCountStmt      *sql.Stmt
-	getWaterByUserIdStmt           *sql.Stmt
+	db                               DBTX
+	tx                               *sql.Tx
+	countDrinkHistoryByUserIdStmt    *sql.Stmt
+	countExerciseHistoryByUserIdStmt *sql.Stmt
+	createStmt                       *sql.Stmt
+	createExerciseStmt               *sql.Stmt
+	createOrUpdateWaterStmt          *sql.Stmt
+	deleteExerciseStmt               *sql.Stmt
+	deleteHealthStmt                 *sql.Stmt
+	fetchByDateTimeStmt              *sql.Stmt
+	fetchCategoriesStmt              *sql.Stmt
+	fetchExerciseByCategoryIdStmt    *sql.Stmt
+	fetchTodayExerciseByUserIdStmt   *sql.Stmt
+	getExerciseByIdStmt              *sql.Stmt
+	getTodayExerciseCountStmt        *sql.Stmt
+	getWaterByUserIdStmt             *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:                             tx,
-		tx:                             tx,
-		createStmt:                     q.createStmt,
-		createExerciseStmt:             q.createExerciseStmt,
-		createOrUpdateWaterStmt:        q.createOrUpdateWaterStmt,
-		deleteExerciseStmt:             q.deleteExerciseStmt,
-		deleteHealthStmt:               q.deleteHealthStmt,
-		fetchByDateTimeStmt:            q.fetchByDateTimeStmt,
-		fetchCategoriesStmt:            q.fetchCategoriesStmt,
-		fetchExerciseByCategoryIdStmt:  q.fetchExerciseByCategoryIdStmt,
-		fetchTodayExerciseByUserIdStmt: q.fetchTodayExerciseByUserIdStmt,
-		getExerciseByIdStmt:            q.getExerciseByIdStmt,
-		getTodayExerciseCountStmt:      q.getTodayExerciseCountStmt,
-		getWaterByUserIdStmt:           q.getWaterByUserIdStmt,
+		db:                               tx,
+		tx:                               tx,
+		countDrinkHistoryByUserIdStmt:    q.countDrinkHistoryByUserIdStmt,
+		countExerciseHistoryByUserIdStmt: q.countExerciseHistoryByUserIdStmt,
+		createStmt:                       q.createStmt,
+		createExerciseStmt:               q.createExerciseStmt,
+		createOrUpdateWaterStmt:          q.createOrUpdateWaterStmt,
+		deleteExerciseStmt:               q.deleteExerciseStmt,
+		deleteHealthStmt:                 q.deleteHealthStmt,
+		fetchByDateTimeStmt:              q.fetchByDateTimeStmt,
+		fetchCategoriesStmt:              q.fetchCategoriesStmt,
+		fetchExerciseByCategoryIdStmt:    q.fetchExerciseByCategoryIdStmt,
+		fetchTodayExerciseByUserIdStmt:   q.fetchTodayExerciseByUserIdStmt,
+		getExerciseByIdStmt:              q.getExerciseByIdStmt,
+		getTodayExerciseCountStmt:        q.getTodayExerciseCountStmt,
+		getWaterByUserIdStmt:             q.getWaterByUserIdStmt,
 	}
 }

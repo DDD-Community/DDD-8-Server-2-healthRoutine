@@ -11,6 +11,30 @@ import (
 	"github.com/google/uuid"
 )
 
+const countDrinkHistoryByUserId = `-- name: CountDrinkHistoryByUserId :one
+SELECT COUNT(user_id) AS drink_count FROM water
+WHERE user_id = ?
+`
+
+func (q *Queries) CountDrinkHistoryByUserId(ctx context.Context, userID uuid.UUID) (int64, error) {
+	row := q.queryRow(ctx, q.countDrinkHistoryByUserIdStmt, countDrinkHistoryByUserId, userID)
+	var drink_count int64
+	err := row.Scan(&drink_count)
+	return drink_count, err
+}
+
+const countExerciseHistoryByUserId = `-- name: CountExerciseHistoryByUserId :one
+SELECT COUNT(user_id) AS exercise_count FROM health
+WHERE user_id = ?
+`
+
+func (q *Queries) CountExerciseHistoryByUserId(ctx context.Context, userID uuid.UUID) (int64, error) {
+	row := q.queryRow(ctx, q.countExerciseHistoryByUserIdStmt, countExerciseHistoryByUserId, userID)
+	var exercise_count int64
+	err := row.Scan(&exercise_count)
+	return exercise_count, err
+}
+
 const create = `-- name: Create :exec
 INSERT INTO health(id, user_id, exercise_id, weight, reps, ` + "`" + `set` + "`" + `, created_at) VALUES (?,?,?,?,?,?,?)
 `

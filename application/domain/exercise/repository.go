@@ -31,4 +31,6 @@ type Repository interface {
 	DeleteHealth(ctx context.Context, id uuid.UUID) error
 	GetWaterByUserId(ctx context.Context, userId uuid.UUID) (entity.Water, error)
 	CreateOrUpdateWater(ctx context.Context, userId uuid.UUID, capacity int64) error
+	CountExerciseHistoryByUserId(ctx context.Context, userId uuid.UUID) (int64, error)
+	CountDrinkHistoryByUserId(ctx context.Context, userId uuid.UUID) (int64, error)
 }
