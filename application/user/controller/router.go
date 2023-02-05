@@ -21,5 +21,4 @@ func BindUserHandler(app *fiber.App, cases usecase.UserUseCases) {
 	api.Put("/user/profile/img-upload", middlewares.AuthRequired(), handler.uploadProfileImg)
 
 	api.Get("/user/badge", middlewares.AuthRequired(), handler.getBadge)
-	api.Get("/user/badge/latest", middlewares.AuthRequired(), handler.getLatestBadge)
 }

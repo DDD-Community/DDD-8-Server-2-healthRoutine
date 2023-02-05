@@ -270,28 +270,3 @@ func (h *Handler) getBadge(c *fiber.Ctx) error {
 	}
 	return c.Status(http.StatusOK).JSON(NewResponseBody(http.StatusOK, resp))
 }
-
-func (h *Handler) getLatestBadge(c *fiber.Ctx) error {
-	logger := h.log()
-	defer logger.Sync()
-
-	userId, err := middlewares.ExtractUserId(c)
-	if err != nil {
-		return response.ErrUnauthorized
-	}
-
-	resp, err := h.useCase.GetLatestBadgeUseCase.Use(c.Context(), userId)
-	if err != nil {
-		return response.ErrorResponse(c, err, func(err error) {
-			logger.Error(err)
-		})
-	}
-
-	var res struct {
-		Subject string `json:"subject"`
-	}
-
-	res.Subject = resp
-
-	return c.Status(http.StatusOK).JSON(NewResponseBody(http.StatusOK, res))
-}

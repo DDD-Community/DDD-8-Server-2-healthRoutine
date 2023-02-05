@@ -40,7 +40,7 @@ WHERE users_id = ?
 ORDER BY b.id;
 
 -- name: GetLatestBadgeByUserId :one
-SELECT b.subject FROM badge_users bu
+SELECT b.id, subject FROM badge_users bu
     INNER JOIN badge b on bu.badge_id = b.id
 WHERE users_id = ?
 ORDER BY created_at LIMIT 1;

@@ -117,6 +117,6 @@ func (r *repo) GetBadgeByUserId(ctx context.Context, userId uuid.UUID) ([]int64,
 	return r.preparedQuery.GetBadgeByUserId(ctx, userId)
 }
 
-func (r *repo) GetLatestBadgeByUserId(ctx context.Context, userId uuid.UUID) (string, error) {
+func (r *repo) GetLatestBadgeByUserId(ctx context.Context, userId uuid.UUID) (entity.Badge, error) {
 	return r.preparedQuery.GetLatestBadgeByUserId(ctx, userId)
 }

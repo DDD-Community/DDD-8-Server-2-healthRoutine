@@ -152,17 +152,17 @@ func (q *Queries) GetById(ctx context.Context, id uuid.UUID) (User, error) {
 }
 
 const getLatestBadgeByUserId = `-- name: GetLatestBadgeByUserId :one
-SELECT b.subject FROM badge_users bu
+SELECT b.id, subject FROM badge_users bu
     INNER JOIN badge b on bu.badge_id = b.id
 WHERE users_id = ?
 ORDER BY created_at LIMIT 1
 `
 
-func (q *Queries) GetLatestBadgeByUserId(ctx context.Context, usersID uuid.UUID) (string, error) {
+func (q *Queries) GetLatestBadgeByUserId(ctx context.Context, usersID uuid.UUID) (Badge, error) {
 	row := q.queryRow(ctx, q.getLatestBadgeByUserIdStmt, getLatestBadgeByUserId, usersID)
-	var subject string
-	err := row.Scan(&subject)
-	return subject, err
+	var i Badge
+	err := row.Scan(&i.ID, &i.Subject)
+	return i, err
 }
 
 const getNicknameById = `-- name: GetNicknameById :one

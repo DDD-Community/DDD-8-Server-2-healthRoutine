@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"github.com/google/uuid"
+	entity "healthRoutine/pkgs/database/sqlc/user"
 )
 
 type Repository interface {
@@ -15,5 +16,5 @@ type Repository interface {
 	UpdateProfileById(ctx context.Context, id uuid.UUID, nickname, url string) error
 	CreateBadge(ctx context.Context, userId uuid.UUID, badgeId []int64) error
 	GetBadgeByUserId(ctx context.Context, userId uuid.UUID) ([]int64, error)
-	GetLatestBadgeByUserId(ctx context.Context, userId uuid.UUID) (string, error)
+	GetLatestBadgeByUserId(ctx context.Context, userId uuid.UUID) (entity.Badge, error)
 }

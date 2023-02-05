@@ -47,7 +47,6 @@ func main() {
 		UploadTemporaryProfileUseCase: usecase.UploadTemporaryProfileUseCase(userRepo, defaultS3),
 		UpdateProfileUseCase:          usecase.UpdateProfileUseCase(userRepo, defaultS3),
 		GetBadgeUseCase:               usecase.GetBadgeUseCase(userRepo),
-		GetLatestBadgeUseCase:         usecase.GetLatestBadgeUseCase(userRepo),
 	}
 
 	exerciseUseCase := usecase2.ExerciseUseCase{

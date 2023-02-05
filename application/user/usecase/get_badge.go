@@ -8,18 +8,11 @@ import (
 )
 
 var (
-	_ user.GetBadgeUseCase       = (*getBadgeUseCaseImpl)(nil)
-	_ user.GetLatestBadgeUseCase = (*getLatestBadgeUseCaseImpl)(nil)
+	_ user.GetBadgeUseCase = (*getBadgeUseCaseImpl)(nil)
 )
 
 func GetBadgeUseCase(repo user.Repository) user.GetBadgeUseCase {
 	return &getBadgeUseCaseImpl{
-		userRepo: repo,
-	}
-}
-
-func GetLatestBadgeUseCase(repo user.Repository) user.GetLatestBadgeUseCase {
-	return &getLatestBadgeUseCaseImpl{
 		userRepo: repo,
 	}
 }
@@ -83,6 +76,13 @@ func (u *getBadgeUseCaseImpl) Use(ctx context.Context, userId uuid.UUID) (*user.
 			drinkHippo = true
 		}
 	}
+
+	// TODO: go routine
+	res, err := u.userRepo.GetLatestBadgeByUserId(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
 	return &user.GetBadge{
 		ExerciseStart:     exerciseStart,
 		ExerciseHappy:     exerciseHappy,
@@ -96,9 +96,9 @@ func (u *getBadgeUseCaseImpl) Use(ctx context.Context, userId uuid.UUID) (*user.
 		DrinkHoneyHoney:   drinkHoneyHoney,
 		DrinkBulkUpBulkUp: drinkBulkUpBulkUp,
 		DrinkHippo:        drinkHippo,
+		LatestBadge: user.LatestBadge{
+			Index:   res.ID,
+			Subject: res.Subject,
+		},
 	}, err
-}
-
-func (u *getLatestBadgeUseCaseImpl) Use(ctx context.Context, userId uuid.UUID) (string, error) {
-	return u.userRepo.GetLatestBadgeByUserId(ctx, userId)
 }

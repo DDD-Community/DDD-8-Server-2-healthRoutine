@@ -49,25 +49,27 @@ type UploadTemporaryProfileUseCase interface {
 	Use(ctx context.Context, params UploadTemporaryProfileParams) (string, error)
 }
 
+type LatestBadge struct {
+	Index   int64  `json:"index"`
+	Subject string `json:"subject"`
+}
+
 type GetBadge struct {
-	ExerciseStart     bool `json:"exerciseStart"`
-	ExerciseHappy     bool `json:"exerciseHappy"`
-	ExerciseHolic     bool `json:"exerciseHolic"`
-	ExerciseMaster    bool `json:"exerciseMaster"`
-	ExerciseChampion  bool `json:"exerciseChampion"`
-	SincerityJunior   bool `json:"sincerityJunior"`
-	SincerityPro      bool `json:"sincerityPro"`
-	SincerityMaster   bool `json:"sincerityMaster"`
-	SincerityChampion bool `json:"sincerityChampion"`
-	DrinkHoneyHoney   bool `json:"drinkHoneyHoney"`
-	DrinkBulkUpBulkUp bool `json:"drinkBulkUpBulkUp"`
-	DrinkHippo        bool `json:"drinkHippo"`
+	ExerciseStart     bool        `json:"exerciseStart"`
+	ExerciseHappy     bool        `json:"exerciseHappy"`
+	ExerciseHolic     bool        `json:"exerciseHolic"`
+	ExerciseMaster    bool        `json:"exerciseMaster"`
+	ExerciseChampion  bool        `json:"exerciseChampion"`
+	SincerityJunior   bool        `json:"sincerityJunior"`
+	SincerityPro      bool        `json:"sincerityPro"`
+	SincerityMaster   bool        `json:"sincerityMaster"`
+	SincerityChampion bool        `json:"sincerityChampion"`
+	DrinkHoneyHoney   bool        `json:"drinkHoneyHoney"`
+	DrinkBulkUpBulkUp bool        `json:"drinkBulkUpBulkUp"`
+	DrinkHippo        bool        `json:"drinkHippo"`
+	LatestBadge       LatestBadge `json:"latestBadge"`
 }
 
 type GetBadgeUseCase interface {
 	Use(ctx context.Context, userId uuid.UUID) (*GetBadge, error)
-}
-
-type GetLatestBadgeUseCase interface {
-	Use(ctx context.Context, userId uuid.UUID) (string, error)
 }
