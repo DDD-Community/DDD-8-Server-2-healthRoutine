@@ -145,6 +145,11 @@ func (h *Handler) fetchExerciseByCategoryId(c *fiber.Ctx) error {
 	logger := h.log()
 	defer logger.Sync()
 
+	userId, err := middlewares.ExtractUserId(c)
+	if err != nil {
+		return response.ErrUnauthorized
+	}
+
 	var binder struct {
 		CategoryId int64 `json:"-" xml:"-" query:"category"`
 	}
@@ -154,7 +159,7 @@ func (h *Handler) fetchExerciseByCategoryId(c *fiber.Ctx) error {
 		return response.ErrorResponse(c, err, nil)
 	}
 
-	resp, err := h.useCase.FetchExerciseByCategoryIdUseCase.Use(c.Context(), binder.CategoryId)
+	resp, err := h.useCase.FetchExerciseByCategoryIdUseCase.Use(c.Context(), userId, binder.CategoryId)
 	if err != nil {
 		return response.ErrorResponse(c, err, func(err error) {
 			logger.Error(err)

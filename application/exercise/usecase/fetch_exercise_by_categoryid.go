@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"healthRoutine/application/domain/exercise"
 )
 
@@ -17,6 +18,6 @@ type fetchExerciseByCategoryIdUseCaseImpl struct {
 	exercise.Repository
 }
 
-func (u *fetchExerciseByCategoryIdUseCaseImpl) Use(ctx context.Context, categoryId int64) ([]exercise.ExerciseModel, error) {
-	return u.Repository.FetchExerciseByCategoryId(ctx, categoryId)
+func (u *fetchExerciseByCategoryIdUseCaseImpl) Use(ctx context.Context, userId uuid.UUID, categoryId int64) ([]exercise.ExerciseModel, error) {
+	return u.Repository.FetchExerciseByCategoryId(ctx, userId, categoryId)
 }

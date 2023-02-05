@@ -22,8 +22,8 @@ SELECT * FROM exercise_category;
 
 -- name: FetchExerciseByCategoryId :many
 SELECT * FROM exercise
-WHERE category_id = ?
-LIMIT 8;
+WHERE category_id = ? AND (user_id = ? OR user_id IS NULL)
+ORDER BY user_id IS NULL DESC;
 
 -- name: FetchTodayExerciseByUserId :many
 SELECT h.*,

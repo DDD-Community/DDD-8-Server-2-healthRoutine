@@ -29,7 +29,7 @@ type CreateExerciseUseCase interface {
 }
 
 type FetchExerciseByCategoryIdUseCase interface {
-	Use(ctx context.Context, categoryId int64) ([]ExerciseModel, error)
+	Use(ctx context.Context, userId uuid.UUID, categoryId int64) ([]ExerciseModel, error)
 }
 
 type FetchCategoriesUseCase interface {

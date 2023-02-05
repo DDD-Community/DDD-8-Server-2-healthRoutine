@@ -106,8 +106,11 @@ func (r *repo) FetchCategories(ctx context.Context) (res []exercise.ExerciseCate
 	return
 }
 
-func (r *repo) FetchExerciseByCategoryId(ctx context.Context, categoryId int64) (res []exercise.ExerciseModel, err error) {
-	resp, err := r.preparedQuery.FetchExerciseByCategoryId(ctx, categoryId)
+func (r *repo) FetchExerciseByCategoryId(ctx context.Context, userId uuid.UUID, categoryId int64) (res []exercise.ExerciseModel, err error) {
+	resp, err := r.preparedQuery.FetchExerciseByCategoryId(ctx, entity.FetchExerciseByCategoryIdParams{
+		CategoryID: categoryId,
+		UserID:     &userId,
+	})
 	if err != nil {
 		return
 	}

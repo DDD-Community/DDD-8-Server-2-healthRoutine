@@ -211,12 +211,17 @@ func (q *Queries) FetchCategories(ctx context.Context) ([]ExerciseCategory, erro
 
 const fetchExerciseByCategoryId = `-- name: FetchExerciseByCategoryId :many
 SELECT id, subject, category_id, user_id FROM exercise
-WHERE category_id = ?
-LIMIT 8
+WHERE category_id = ? AND (user_id = ? OR user_id IS NULL )
+ORDER BY user_id IS NULL DESC
 `
 
-func (q *Queries) FetchExerciseByCategoryId(ctx context.Context, categoryID int64) ([]Exercise, error) {
-	rows, err := q.query(ctx, q.fetchExerciseByCategoryIdStmt, fetchExerciseByCategoryId, categoryID)
+type FetchExerciseByCategoryIdParams struct {
+	CategoryID int64
+	UserID     *uuid.UUID
+}
+
+func (q *Queries) FetchExerciseByCategoryId(ctx context.Context, arg FetchExerciseByCategoryIdParams) ([]Exercise, error) {
+	rows, err := q.query(ctx, q.fetchExerciseByCategoryIdStmt, fetchExerciseByCategoryId, arg.CategoryID, arg.UserID)
 	if err != nil {
 		return nil, err
 	}
