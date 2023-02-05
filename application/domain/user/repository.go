@@ -17,4 +17,5 @@ type Repository interface {
 	CreateBadge(ctx context.Context, userId uuid.UUID, badgeId []int64) error
 	GetBadgeByUserId(ctx context.Context, userId uuid.UUID) ([]int64, error)
 	GetLatestBadgeByUserId(ctx context.Context, userId uuid.UUID) (entity.Badge, error)
+	DeleteUserById(ctx context.Context, userId uuid.UUID) error
 }

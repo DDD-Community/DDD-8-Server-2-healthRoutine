@@ -16,6 +16,9 @@ func BindUserHandler(app *fiber.App, cases usecase.UserUseCases) {
 	api.Post("/user/register", handler.signUp)
 	api.Post("/user/login", handler.signIn)
 	api.Post("/user/validate/email", handler.checkEmailValidation)
+
+	// Auth required
+	api.Delete("/user/withdrawal", middlewares.AuthRequired(), handler.userWithdrawal)
 	api.Get("/user/profile", middlewares.AuthRequired(), handler.getProfile)
 	api.Put("/user/profile", middlewares.AuthRequired(), handler.updateProfile)
 	api.Put("/user/profile/img-upload", middlewares.AuthRequired(), handler.uploadProfileImg)

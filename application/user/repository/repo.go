@@ -120,3 +120,7 @@ func (r *repo) GetBadgeByUserId(ctx context.Context, userId uuid.UUID) ([]int64,
 func (r *repo) GetLatestBadgeByUserId(ctx context.Context, userId uuid.UUID) (entity.Badge, error) {
 	return r.preparedQuery.GetLatestBadgeByUserId(ctx, userId)
 }
+
+func (r *repo) DeleteUserById(ctx context.Context, userId uuid.UUID) error {
+	return r.preparedQuery.DeleteUserById(ctx, userId)
+}

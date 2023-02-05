@@ -270,3 +270,24 @@ func (h *Handler) getBadge(c *fiber.Ctx) error {
 	}
 	return c.Status(http.StatusOK).JSON(NewResponseBody(http.StatusOK, resp))
 }
+
+func (h *Handler) userWithdrawal(c *fiber.Ctx) error {
+	logger := h.log()
+	defer logger.Sync()
+
+	userId, err := middlewares.ExtractUserId(c)
+	if err != nil {
+		err = response.ErrUnauthorized
+		return response.ErrorResponse(c, err, nil)
+	}
+
+	err = h.useCase.WithdrawalUseCase.Use(c.Context(), userId)
+	if err != nil {
+		return response.ErrorResponse(c, err, func(err error) {
+			logger.Error("failed to delete user")
+			logger.Error(err)
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(NewResponseBody(http.StatusOK))
+}

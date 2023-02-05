@@ -73,3 +73,7 @@ type GetBadge struct {
 type GetBadgeUseCase interface {
 	Use(ctx context.Context, userId uuid.UUID) (*GetBadge, error)
 }
+
+type WithdrawalUseCase interface {
+	Use(ctx context.Context, userId uuid.UUID) error
+}

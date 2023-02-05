@@ -44,3 +44,6 @@ SELECT b.id, subject FROM badge_users bu
     INNER JOIN badge b on bu.badge_id = b.id
 WHERE users_id = ?
 ORDER BY created_at LIMIT 1;
+
+-- name: DeleteUserById :exec
+DELETE FROM users WHERE id = ?

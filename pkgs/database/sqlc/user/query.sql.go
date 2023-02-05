@@ -81,6 +81,15 @@ func (q *Queries) CreateBadge(ctx context.Context, arg CreateBadgeParams) error 
 	return err
 }
 
+const deleteUserById = `-- name: DeleteUserById :exec
+DELETE FROM users WHERE id = ?
+`
+
+func (q *Queries) DeleteUserById(ctx context.Context, id uuid.UUID) error {
+	_, err := q.exec(ctx, q.deleteUserByIdStmt, deleteUserById, id)
+	return err
+}
+
 const getBadgeByUserId = `-- name: GetBadgeByUserId :many
 SELECT bu.badge_id FROM badge_users bu
 INNER JOIN badge b on bu.badge_id = b.id
