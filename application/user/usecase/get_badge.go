@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"database/sql"
 	"github.com/google/uuid"
 	"healthRoutine/application/domain/user"
 	"healthRoutine/application/domain/user/enum"
@@ -78,8 +79,18 @@ func (u *getBadgeUseCaseImpl) Use(ctx context.Context, userId uuid.UUID) (*user.
 	}
 
 	// TODO: go routine
+	var latestBadge *user.LatestBadge
 	res, err := u.userRepo.GetLatestBadgeByUserId(ctx, userId)
-	if err != nil {
+	if err == nil {
+		latestBadge = &user.LatestBadge{
+			Index:   res.ID,
+			Subject: res.Subject,
+		}
+	} else if err == sql.ErrNoRows {
+		// fix hard code
+		latestBadge = nil
+		err = nil
+	} else {
 		return nil, err
 	}
 
@@ -96,9 +107,6 @@ func (u *getBadgeUseCaseImpl) Use(ctx context.Context, userId uuid.UUID) (*user.
 		DrinkHoneyHoney:   drinkHoneyHoney,
 		DrinkBulkUpBulkUp: drinkBulkUpBulkUp,
 		DrinkHippo:        drinkHippo,
-		LatestBadge: user.LatestBadge{
-			Index:   res.ID,
-			Subject: res.Subject,
-		},
+		LatestBadge:       latestBadge,
 	}, err
 }
