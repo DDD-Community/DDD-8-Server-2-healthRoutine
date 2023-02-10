@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	updateCycle = 15
+	updateCycle = 5
 )
 
 type SchedulerParams struct {
