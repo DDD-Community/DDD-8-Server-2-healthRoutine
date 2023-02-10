@@ -15,7 +15,8 @@ type Repository interface {
 	CheckExistsByNickname(ctx context.Context, nickname string) (bool, error)
 	UpdateProfileById(ctx context.Context, id uuid.UUID, nickname, url string) error
 	CreateBadge(ctx context.Context, userId uuid.UUID, badgeId []int64) error
-	GetBadgeByUserId(ctx context.Context, userId uuid.UUID) ([]int64, error)
-	GetLatestBadgeByUserId(ctx context.Context, userId uuid.UUID) (entity.Badge, error)
+	GetBadgeByUserId(ctx context.Context) ([]entity.Badge, error)
+	GetLatestBadgeByUserId(ctx context.Context, userId uuid.UUID) (entity.GetLatestBadgeByUserIdRow, error)
+	ExistsBadgeByUserId(ctx context.Context, userId uuid.UUID, badgeId int64) (bool, error)
 	DeleteUserById(ctx context.Context, userId uuid.UUID) error
 }

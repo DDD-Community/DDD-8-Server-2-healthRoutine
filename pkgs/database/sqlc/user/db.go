@@ -39,6 +39,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.deleteUserByIdStmt, err = db.PrepareContext(ctx, deleteUserById); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteUserById: %w", err)
 	}
+	if q.existsBadgeByUserIdStmt, err = db.PrepareContext(ctx, existsBadgeByUserId); err != nil {
+		return nil, fmt.Errorf("error preparing query ExistsBadgeByUserId: %w", err)
+	}
 	if q.getBadgeByUserIdStmt, err = db.PrepareContext(ctx, getBadgeByUserId); err != nil {
 		return nil, fmt.Errorf("error preparing query GetBadgeByUserId: %w", err)
 	}
@@ -85,6 +88,11 @@ func (q *Queries) Close() error {
 	if q.deleteUserByIdStmt != nil {
 		if cerr := q.deleteUserByIdStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing deleteUserByIdStmt: %w", cerr)
+		}
+	}
+	if q.existsBadgeByUserIdStmt != nil {
+		if cerr := q.existsBadgeByUserIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing existsBadgeByUserIdStmt: %w", cerr)
 		}
 	}
 	if q.getBadgeByUserIdStmt != nil {
@@ -161,6 +169,7 @@ type Queries struct {
 	createStmt                 *sql.Stmt
 	createBadgeStmt            *sql.Stmt
 	deleteUserByIdStmt         *sql.Stmt
+	existsBadgeByUserIdStmt    *sql.Stmt
 	getBadgeByUserIdStmt       *sql.Stmt
 	getByEmailStmt             *sql.Stmt
 	getByIdStmt                *sql.Stmt
@@ -178,6 +187,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		createStmt:                 q.createStmt,
 		createBadgeStmt:            q.createBadgeStmt,
 		deleteUserByIdStmt:         q.deleteUserByIdStmt,
+		existsBadgeByUserIdStmt:    q.existsBadgeByUserIdStmt,
 		getBadgeByUserIdStmt:       q.getBadgeByUserIdStmt,
 		getByEmailStmt:             q.getByEmailStmt,
 		getByIdStmt:                q.getByIdStmt,

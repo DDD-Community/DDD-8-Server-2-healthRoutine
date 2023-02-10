@@ -49,29 +49,14 @@ type UploadTemporaryProfileUseCase interface {
 	Use(ctx context.Context, params UploadTemporaryProfileParams) (string, error)
 }
 
-type LatestBadge struct {
-	Index   int64  `json:"index"`
-	Subject string `json:"subject"`
-}
-
-type GetBadge struct {
-	ExerciseStart     bool         `json:"exerciseStart"`
-	ExerciseHappy     bool         `json:"exerciseHappy"`
-	ExerciseHolic     bool         `json:"exerciseHolic"`
-	ExerciseMaster    bool         `json:"exerciseMaster"`
-	ExerciseChampion  bool         `json:"exerciseChampion"`
-	SincerityJunior   bool         `json:"sincerityJunior"`
-	SincerityPro      bool         `json:"sincerityPro"`
-	SincerityMaster   bool         `json:"sincerityMaster"`
-	SincerityChampion bool         `json:"sincerityChampion"`
-	DrinkHoneyHoney   bool         `json:"drinkHoneyHoney"`
-	DrinkBulkUpBulkUp bool         `json:"drinkBulkUpBulkUp"`
-	DrinkHippo        bool         `json:"drinkHippo"`
-	LatestBadge       *LatestBadge `json:"latestBadge"`
+type GetBadgeResult struct {
+	MyBadge      []string `json:"myBadge"`
+	WaitingBadge []string `json:"waitingBadge"`
+	LatestBadge  string   `json:"latestBadge"`
 }
 
 type GetBadgeUseCase interface {
-	Use(ctx context.Context, userId uuid.UUID) (*GetBadge, error)
+	Use(ctx context.Context, userId uuid.UUID) (*GetBadgeResult, error)
 }
 
 type WithdrawalUseCase interface {

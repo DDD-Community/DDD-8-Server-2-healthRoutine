@@ -113,11 +113,18 @@ func (r *repo) CreateBadge(ctx context.Context, userId uuid.UUID, badgeId []int6
 	return nil
 }
 
-func (r *repo) GetBadgeByUserId(ctx context.Context, userId uuid.UUID) ([]int64, error) {
-	return r.preparedQuery.GetBadgeByUserId(ctx, userId)
+func (r *repo) GetBadgeByUserId(ctx context.Context) ([]entity.Badge, error) {
+	return r.preparedQuery.GetBadgeByUserId(ctx)
 }
 
-func (r *repo) GetLatestBadgeByUserId(ctx context.Context, userId uuid.UUID) (entity.Badge, error) {
+func (r *repo) ExistsBadgeByUserId(ctx context.Context, userId uuid.UUID, badgeId int64) (bool, error) {
+	return r.preparedQuery.ExistsBadgeByUserId(ctx, entity.ExistsBadgeByUserIdParams{
+		UsersID: userId,
+		BadgeID: badgeId,
+	})
+}
+
+func (r *repo) GetLatestBadgeByUserId(ctx context.Context, userId uuid.UUID) (entity.GetLatestBadgeByUserIdRow, error) {
 	return r.preparedQuery.GetLatestBadgeByUserId(ctx, userId)
 }
 

@@ -11,6 +11,7 @@ import (
 type Badge struct {
 	ID      int64
 	Subject string
+	Sub     string
 }
 
 type BadgeUser struct {

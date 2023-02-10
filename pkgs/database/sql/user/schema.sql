@@ -14,7 +14,8 @@ CREATE INDEX users_nickname_idx ON users (nickname);
 
 CREATE TABLE badge (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    subject VARCHAR(15) NOT NULL
+    subject VARCHAR(15) NOT NULL,
+    sub VARCHAR(30) NOT NULL
 );
 
 CREATE INDEX badge_id_idx ON badge(id);

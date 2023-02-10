@@ -34,16 +34,20 @@ WHERE id = ?;
 INSERT INTO badge_users (users_id, badge_id, created_at) VALUES (?, ?, ?);
 
 -- name: GetBadgeByUserId :many
-SELECT bu.badge_id FROM badge_users bu
-INNER JOIN badge b on bu.badge_id = b.id
-WHERE users_id = ?
-ORDER BY b.id;
+SELECT * FROM badge
+ORDER BY id;
 
 -- name: GetLatestBadgeByUserId :one
-SELECT b.id, subject FROM badge_users bu
+SELECT b.*, bu.badge_id FROM badge_users bu
     INNER JOIN badge b on bu.badge_id = b.id
 WHERE users_id = ?
 ORDER BY created_at LIMIT 1;
 
 -- name: DeleteUserById :exec
-DELETE FROM users WHERE id = ?
+DELETE FROM users WHERE id = ?;
+
+-- name: ExistsBadgeByUserId :one
+SELECT NOT EXISTS(
+    SELECT * FROM badge_users
+    WHERE users_id = ? AND badge_id = ?
+)

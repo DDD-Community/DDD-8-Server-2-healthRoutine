@@ -90,26 +90,43 @@ func (q *Queries) DeleteUserById(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
-const getBadgeByUserId = `-- name: GetBadgeByUserId :many
-SELECT bu.badge_id FROM badge_users bu
-INNER JOIN badge b on bu.badge_id = b.id
-WHERE users_id = ?
-ORDER BY b.id
+const existsBadgeByUserId = `-- name: ExistsBadgeByUserId :one
+SELECT NOT EXISTS(
+    SELECT users_id, badge_id, created_at FROM badge_users
+    WHERE users_id = ? AND badge_id = ?
+)
 `
 
-func (q *Queries) GetBadgeByUserId(ctx context.Context, usersID uuid.UUID) ([]int64, error) {
-	rows, err := q.query(ctx, q.getBadgeByUserIdStmt, getBadgeByUserId, usersID)
+type ExistsBadgeByUserIdParams struct {
+	UsersID uuid.UUID
+	BadgeID int64
+}
+
+func (q *Queries) ExistsBadgeByUserId(ctx context.Context, arg ExistsBadgeByUserIdParams) (bool, error) {
+	row := q.queryRow(ctx, q.existsBadgeByUserIdStmt, existsBadgeByUserId, arg.UsersID, arg.BadgeID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const getBadgeByUserId = `-- name: GetBadgeByUserId :many
+SELECT id, subject, sub FROM badge
+ORDER BY id
+`
+
+func (q *Queries) GetBadgeByUserId(ctx context.Context) ([]Badge, error) {
+	rows, err := q.query(ctx, q.getBadgeByUserIdStmt, getBadgeByUserId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []int64
+	var items []Badge
 	for rows.Next() {
-		var badge_id int64
-		if err := rows.Scan(&badge_id); err != nil {
+		var i Badge
+		if err := rows.Scan(&i.ID, &i.Subject, &i.Sub); err != nil {
 			return nil, err
 		}
-		items = append(items, badge_id)
+		items = append(items, i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -161,16 +178,28 @@ func (q *Queries) GetById(ctx context.Context, id uuid.UUID) (User, error) {
 }
 
 const getLatestBadgeByUserId = `-- name: GetLatestBadgeByUserId :one
-SELECT b.id, subject FROM badge_users bu
+SELECT b.id, b.subject, b.sub, bu.badge_id FROM badge_users bu
     INNER JOIN badge b on bu.badge_id = b.id
 WHERE users_id = ?
 ORDER BY created_at LIMIT 1
 `
 
-func (q *Queries) GetLatestBadgeByUserId(ctx context.Context, usersID uuid.UUID) (Badge, error) {
+type GetLatestBadgeByUserIdRow struct {
+	ID      int64
+	Subject string
+	Sub     string
+	BadgeID int64
+}
+
+func (q *Queries) GetLatestBadgeByUserId(ctx context.Context, usersID uuid.UUID) (GetLatestBadgeByUserIdRow, error) {
 	row := q.queryRow(ctx, q.getLatestBadgeByUserIdStmt, getLatestBadgeByUserId, usersID)
-	var i Badge
-	err := row.Scan(&i.ID, &i.Subject)
+	var i GetLatestBadgeByUserIdRow
+	err := row.Scan(
+		&i.ID,
+		&i.Subject,
+		&i.Sub,
+		&i.BadgeID,
+	)
 	return i, err
 }
 
