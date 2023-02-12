@@ -3,7 +3,9 @@ package usecase
 import (
 	"context"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"healthRoutine/application/domain/user"
+	"healthRoutine/pkgs/log"
 )
 
 var (
@@ -20,11 +22,19 @@ type getBadgeUseCaseImpl struct {
 	userRepo user.Repository
 }
 
+func (*getBadgeUseCaseImpl) log() *zap.SugaredLogger {
+	return log.Get().Named("GET_BADGE_USE_CASE")
+}
+
 // Use
 // TODO: refactor
 func (u *getBadgeUseCaseImpl) Use(ctx context.Context, userId uuid.UUID) (*user.GetBadgeResult, error) {
+	logger := u.log()
+	defer logger.Sync()
+
 	resp, err := u.userRepo.GetBadgeByUserId(ctx)
 	if err != nil {
+		logger.Error(err)
 		return nil, err
 	}
 
@@ -45,11 +55,21 @@ func (u *getBadgeUseCaseImpl) Use(ctx context.Context, userId uuid.UUID) (*user.
 		}
 	}
 
-	res, err := u.userRepo.GetLatestBadgeByUserId(ctx, userId)
+	var latestBadge *string
+	res, ferr := u.userRepo.GetLatestBadgeByUserId(ctx, userId)
+	switch {
+	case ferr == user.ErrNoBadge:
+		latestBadge = nil
+	case ferr != nil:
+		// pass
+		logger.Error(err)
+	default:
+		latestBadge = &res.Sub
+	}
 
 	return &user.GetBadgeResult{
 		MyBadge:      myBadge,
 		WaitingBadge: waitingBadge,
-		LatestBadge:  res.Sub,
+		LatestBadge:  latestBadge,
 	}, err
 }

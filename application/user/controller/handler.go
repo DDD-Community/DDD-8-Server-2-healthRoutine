@@ -268,6 +268,7 @@ func (h *Handler) getBadge(c *fiber.Ctx) error {
 			logger.Error(err)
 		})
 	}
+
 	return c.Status(http.StatusOK).JSON(NewResponseBody(http.StatusOK, resp))
 }
 

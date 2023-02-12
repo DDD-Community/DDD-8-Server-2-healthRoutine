@@ -5,7 +5,14 @@ var (
 	ErrNicknameAlreadyExists error = &errNicknameAlreadyExists{}
 	ErrUserNotFound          error = &errUserNotFound{}
 	ErrNoRecordDrink         error = &errNoRecordDrink{}
+	ErrNoBadge               error = &errNoBadge{}
 )
+
+type errNoBadge struct{}
+
+func (e *errNoBadge) Error() string {
+	return "don't have any badge"
+}
 
 type errEmailAlreadyExists struct{}
 

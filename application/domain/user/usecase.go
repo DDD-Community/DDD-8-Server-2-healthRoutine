@@ -52,7 +52,7 @@ type UploadTemporaryProfileUseCase interface {
 type GetBadgeResult struct {
 	MyBadge      []string `json:"myBadge"`
 	WaitingBadge []string `json:"waitingBadge"`
-	LatestBadge  string   `json:"latestBadge"`
+	LatestBadge  *string  `json:"latestBadge"`
 }
 
 type GetBadgeUseCase interface {
