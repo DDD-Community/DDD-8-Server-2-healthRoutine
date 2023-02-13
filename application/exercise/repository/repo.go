@@ -118,7 +118,8 @@ func (r *repo) FetchExerciseByCategoryId(ctx context.Context, userId uuid.UUID, 
 	res = make([]exercise.ExerciseModel, 0, len(resp))
 	for _, v := range resp {
 		res = append(res, exercise.ExerciseModel{
-			Exercise: v,
+			Id:      v.ID,
+			Subject: v.Subject,
 		})
 	}
 

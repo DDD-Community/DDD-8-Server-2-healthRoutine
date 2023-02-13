@@ -18,6 +18,26 @@ type fetchExerciseByCategoryIdUseCaseImpl struct {
 	exercise.Repository
 }
 
-func (u *fetchExerciseByCategoryIdUseCaseImpl) Use(ctx context.Context, userId uuid.UUID, categoryId int64) ([]exercise.ExerciseModel, error) {
-	return u.Repository.FetchExerciseByCategoryId(ctx, userId, categoryId)
+// Use
+// TODO: refactor
+func (u *fetchExerciseByCategoryIdUseCaseImpl) Use(ctx context.Context, userId uuid.UUID) (res []exercise.FetchExerciseResult, err error) {
+	resp, err := u.Repository.FetchCategories(ctx)
+	if err != nil {
+		return
+	}
+
+	res = make([]exercise.FetchExerciseResult, 0, len(resp))
+	for _, v := range resp {
+		exResp, ferr := u.Repository.FetchExerciseByCategoryId(ctx, userId, v.ExerciseCategory.ID)
+		if ferr != nil {
+			return nil, ferr
+		}
+		res = append(res, exercise.FetchExerciseResult{
+			Id:       v.ExerciseCategory.ID,
+			Subject:  v.ExerciseCategory.Subject,
+			Exercise: exResp,
+		})
+	}
+
+	return
 }

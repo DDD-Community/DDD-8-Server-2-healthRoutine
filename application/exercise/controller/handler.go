@@ -150,16 +150,7 @@ func (h *Handler) fetchExerciseByCategoryId(c *fiber.Ctx) error {
 		return response.ErrUnauthorized
 	}
 
-	var binder struct {
-		CategoryId int64 `json:"-" xml:"-" query:"category"`
-	}
-
-	if err := c.QueryParser(&binder); err != nil {
-		logger.Error(err)
-		return response.ErrorResponse(c, err, nil)
-	}
-
-	resp, err := h.useCase.FetchExerciseByCategoryIdUseCase.Use(c.Context(), userId, binder.CategoryId)
+	resp, err := h.useCase.FetchExerciseByCategoryIdUseCase.Use(c.Context(), userId)
 	if err != nil {
 		return response.ErrorResponse(c, err, func(err error) {
 			logger.Error(err)
@@ -167,9 +158,9 @@ func (h *Handler) fetchExerciseByCategoryId(c *fiber.Ctx) error {
 		})
 	}
 
-	res := exerciseDomainToData(resp)
+	//res := exerciseDomainToData(resp)
 
-	return c.Status(http.StatusOK).JSON(controller.NewResponseBody(http.StatusOK, res))
+	return c.Status(http.StatusOK).JSON(controller.NewResponseBody(http.StatusOK, resp))
 }
 
 func (h *Handler) fetchCategories(c *fiber.Ctx) error {

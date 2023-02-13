@@ -7,7 +7,8 @@ type DomainModel struct {
 }
 
 type ExerciseModel struct {
-	Exercise entity.Exercise
+	Id      int64  `json:"id"`
+	Subject string `json:"subject"`
 }
 
 type ExerciseCategoryModel struct {

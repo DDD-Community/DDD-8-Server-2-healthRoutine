@@ -28,8 +28,14 @@ type CreateExerciseUseCase interface {
 	Use(ctx context.Context, params CreateExerciseParams) error
 }
 
+type FetchExerciseResult struct {
+	Id       int64           `json:"id"`
+	Subject  string          `json:"subject"`
+	Exercise []ExerciseModel `json:"exercise"`
+}
+
 type FetchExerciseByCategoryIdUseCase interface {
-	Use(ctx context.Context, userId uuid.UUID, categoryId int64) ([]ExerciseModel, error)
+	Use(ctx context.Context, userId uuid.UUID) ([]FetchExerciseResult, error)
 }
 
 type FetchCategoriesUseCase interface {

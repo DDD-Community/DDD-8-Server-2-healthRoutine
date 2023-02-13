@@ -210,7 +210,7 @@ func (q *Queries) FetchCategories(ctx context.Context) ([]ExerciseCategory, erro
 }
 
 const fetchExerciseByCategoryId = `-- name: FetchExerciseByCategoryId :many
-SELECT id, subject, category_id, user_id FROM exercise
+SELECT id, subject FROM exercise
 WHERE category_id = ? AND (user_id = ? OR user_id IS NULL)
 ORDER BY user_id IS NULL DESC
 `
@@ -220,21 +220,21 @@ type FetchExerciseByCategoryIdParams struct {
 	UserID     *uuid.UUID
 }
 
-func (q *Queries) FetchExerciseByCategoryId(ctx context.Context, arg FetchExerciseByCategoryIdParams) ([]Exercise, error) {
+type FetchExerciseByCategoryIdRow struct {
+	ID      int64
+	Subject string
+}
+
+func (q *Queries) FetchExerciseByCategoryId(ctx context.Context, arg FetchExerciseByCategoryIdParams) ([]FetchExerciseByCategoryIdRow, error) {
 	rows, err := q.query(ctx, q.fetchExerciseByCategoryIdStmt, fetchExerciseByCategoryId, arg.CategoryID, arg.UserID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Exercise
+	var items []FetchExerciseByCategoryIdRow
 	for rows.Next() {
-		var i Exercise
-		if err := rows.Scan(
-			&i.ID,
-			&i.Subject,
-			&i.CategoryID,
-			&i.UserID,
-		); err != nil {
+		var i FetchExerciseByCategoryIdRow
+		if err := rows.Scan(&i.ID, &i.Subject); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

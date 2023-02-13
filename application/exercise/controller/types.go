@@ -8,22 +8,23 @@ import (
 
 // TODO: refactor
 
-type fetchExerciseData struct {
-	Id      int64  `json:"id"`
-	Subject string `json:"subject"`
-}
+//type fetchExerciseData struct {
+//	Id      int64  `json:"id"`
+//	Subject string `json:"subject"`
+//}
 
-func exerciseDomainToData(model []exercise.ExerciseModel) (res []fetchExerciseData) {
-	res = make([]fetchExerciseData, 0, len(model))
-	for _, v := range model {
-		res = append(res, fetchExerciseData{
-			Id:      v.Exercise.ID,
-			Subject: v.Exercise.Subject,
-		})
-	}
-
-	return
-}
+//
+//func exerciseDomainToData(model []exercise.ExerciseModel) (res []fetchExerciseData) {
+//	res = make([]fetchExerciseData, 0, len(model))
+//	for _, v := range model {
+//		res = append(res, fetchExerciseData{
+//			Id:      v.Exercise.ID,
+//			Subject: v.Exercise.Subject,
+//		})
+//	}
+//
+//	return
+//}
 
 type fetchCategoriesData struct {
 	Id      int64  `json:"id"`
