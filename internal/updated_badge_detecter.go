@@ -62,19 +62,21 @@ func task(
 		logger.Info("total exercise: ", countExercise)
 		logger.Info("total drink: ", countDrink)
 		switch {
-		case countExercise == 1:
+		case countExercise >= 1 && countExercise < 10:
 			badgeId = append(badgeId, enum.ExerciseStart, enum.SincerityJunior)
-		case countExercise == 30:
-			badgeId = append(badgeId, enum.ExerciseHappy, enum.SincerityPro)
-		case countExercise == 50:
+		case countExercise >= 10 && countExercise < 30:
+			badgeId = append(badgeId, enum.ExerciseHappy)
+		case countExercise >= 30 && countExercise < 50:
+			badgeId = append(badgeId, enum.ExerciseHolic, enum.SincerityPro)
+		case countExercise >= 50 && countExercise < 100:
 			badgeId = append(badgeId, enum.ExerciseMaster, enum.SincerityMaster)
-		case countExercise == 100:
+		case countExercise >= 100:
 			badgeId = append(badgeId, enum.ExerciseChampion, enum.SincerityChampion)
-		case countDrink == 1:
+		case countDrink >= 1 && countDrink < 50:
 			badgeId = append(badgeId, enum.DrinkHoneyHoney)
-		case countDrink == 50:
+		case countDrink >= 50 && countDrink < 100:
 			badgeId = append(badgeId, enum.DrinkBulkUpBulkUp)
-		case countDrink == 100:
+		case countDrink >= 100:
 			badgeId = append(badgeId, enum.DrinkHippo)
 		}
 
