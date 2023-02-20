@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/template/html"
 	controller2 "healthRoutine/application/exercise/controller"
 	repository2 "healthRoutine/application/exercise/repository"
 	usecase2 "healthRoutine/application/exercise/usecase"
@@ -15,13 +16,19 @@ import (
 	"healthRoutine/cmd"
 	"healthRoutine/internal"
 	"healthRoutine/pkgs/database"
+	"log"
 	"net/http"
 )
 
 const addr = ":3000"
 
 func main() {
-	app := fiber.New()
+	// 템플릿 엔진
+	engine := html.New("./application/views", ".html")
+
+	app := fiber.New(fiber.Config{
+		Views: engine,
+	})
 	db := database.Conn()
 
 	// use fiber logger
@@ -72,5 +79,11 @@ func main() {
 		ExerciseRepo: exerciseRepo,
 		SQSClient:    defaultSQS,
 	})
-	app.Listen(addr)
+
+	// 개인정보취급방침 템플릿
+	app.Get("/privacy", func(ctx *fiber.Ctx) error {
+		return ctx.Render("privacy", nil)
+	})
+
+	log.Fatal(app.Listen(addr))
 }

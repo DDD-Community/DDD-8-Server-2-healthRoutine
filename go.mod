@@ -10,7 +10,8 @@ require (
 	github.com/go-co-op/gocron v1.18.0
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/go-sql-driver/mysql v1.6.0
-	github.com/gofiber/fiber/v2 v2.41.0
+	github.com/gofiber/fiber/v2 v2.42.0
+	github.com/gofiber/template v1.7.5
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/spf13/viper v1.14.0
@@ -43,15 +44,19 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
+	github.com/philhofer/fwd v1.1.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
+	github.com/savsgio/dictpool v0.0.0-20221023140959-7bf2e61cea94 // indirect
+	github.com/savsgio/gotils v0.0.0-20220530130905-52f3993e8d6d // indirect
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
+	github.com/tinylib/msgp v1.1.6 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.43.0 // indirect
+	github.com/valyala/fasthttp v1.44.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
