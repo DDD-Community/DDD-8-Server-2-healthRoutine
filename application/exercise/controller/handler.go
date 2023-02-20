@@ -268,7 +268,40 @@ func (h *Handler) fetchMonthly(c *fiber.Ctx) error {
 	})
 }
 
-func (h *Handler) getWater(c *fiber.Ctx) error {
+func (h *Handler) getDrinkWaterByDate(c *fiber.Ctx) error {
+	logger := h.log()
+	defer logger.Sync()
+
+	userId, err := middlewares.ExtractUserId(c)
+	if err != nil {
+		err = response.ErrUnauthorized
+		return response.ErrorResponse(c, err, nil)
+	}
+
+	var binder struct {
+		Year  int `json:"-" xml:"-" query:"year"`
+		Month int `json:"-" xml:"-" query:"month"`
+		Day   int `json:"-" xml:"-" query:"day"`
+	}
+	if err = c.QueryParser(&binder); err != nil {
+		logger.Error(err)
+		return response.ErrorResponse(c, err, nil)
+	}
+
+	var getWater GetWaterData
+	resp, err := h.useCase.GetWaterByUserIdUseCase.Use(c.Context(), userId, binder.Year, binder.Month, binder.Day)
+	switch {
+	case err == nil:
+		return c.Status(http.StatusOK).JSON(controller.NewResponseBody(http.StatusOK, getWater.getWaterToGetWaterData(resp)))
+	case errors.Is(err, user.ErrNoRecordDrink):
+		return c.Status(http.StatusOK).JSON(controller.NewResponseBody(http.StatusOK, getWater.isZero()))
+	}
+	return response.ErrorResponse(c, err, func(err error) {
+		logger.Error(err)
+	})
+}
+
+func (h *Handler) getTodayDrinkWater(c *fiber.Ctx) error {
 	logger := h.log()
 	defer logger.Sync()
 
@@ -279,7 +312,7 @@ func (h *Handler) getWater(c *fiber.Ctx) error {
 	}
 
 	var getWater GetWaterData
-	resp, err := h.useCase.GetWaterByUserIdUseCase.Use(c.Context(), userId)
+	resp, err := h.useCase.GetTodayWaterByUserIdUseCase.Use(c.Context(), userId)
 	switch {
 	case err == nil:
 		return c.Status(http.StatusOK).JSON(controller.NewResponseBody(http.StatusOK, getWater.getWaterToGetWaterData(resp)))

@@ -24,6 +24,7 @@ func BindExerciseHandler(app *fiber.App, cases usecase.ExerciseUseCase) {
 
 	api.Get("/exercise/category", handler.fetchCategories)
 
-	api.Get("/water", middlewares.AuthRequired(), handler.getWater)
+	api.Get("/water/today", middlewares.AuthRequired(), handler.getTodayDrinkWater)
+	api.Get("/water", middlewares.AuthRequired(), handler.getDrinkWaterByDate)
 	api.Post("/water", middlewares.AuthRequired(), handler.createOrUpdateWater)
 }

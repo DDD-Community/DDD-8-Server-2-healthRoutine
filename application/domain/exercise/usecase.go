@@ -82,6 +82,10 @@ type DeleteHealthUseCase interface {
 }
 
 type GetWaterByUserIdUseCase interface {
+	Use(ctx context.Context, userId uuid.UUID, y, m, d int) (entity.Water, error)
+}
+
+type GetTodayWaterByUserIdUseCase interface {
 	Use(ctx context.Context, userId uuid.UUID) (entity.Water, error)
 }
 

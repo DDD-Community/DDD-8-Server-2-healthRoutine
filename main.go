@@ -60,6 +60,7 @@ func main() {
 		DeleteExerciseUseCase:             usecase2.DeleteExerciseUseCase(exerciseRepo),
 		DeleteHealthUseCase:               usecase2.DeleteHealthUseCase(exerciseRepo),
 		GetWaterByUserIdUseCase:           usecase2.GetWaterByUserIdUseCase(exerciseRepo),
+		GetTodayWaterByUserIdUseCase:      usecase2.GetTodayWaterByUserIdUseCase(exerciseRepo),
 		CreateOrUpdateWaterUseCase:        usecase2.CreateOrUpdateWaterUseCase(exerciseRepo, defaultSQS),
 	}
 

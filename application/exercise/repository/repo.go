@@ -142,10 +142,31 @@ func (r *repo) DeleteHealth(ctx context.Context, id uuid.UUID) error {
 	return r.preparedQuery.DeleteHealth(ctx, id)
 }
 
+// GetTodayWaterByUserId
+// TODO: fix bypass
+func (r *repo) GetTodayWaterByUserId(ctx context.Context, userId uuid.UUID) (resp entity.Water, err error) {
+	start, end := timex.GetDateForADayUnixMillisecond(time.Now().UnixMilli())
+	resp, err = r.preparedQuery.GetWaterByUserId(ctx, entity.GetWaterByUserIdParams{
+		UserID:      userId,
+		CreatedAt:   start,
+		CreatedAt_2: end,
+	})
+	switch {
+	case err == sql.ErrNoRows:
+		err = user.ErrNoRecordDrink
+		return
+	case err != nil:
+		return
+	}
+
+	return
+}
+
 // GetWaterByUserId
 // TODO: fix bypass
-func (r *repo) GetWaterByUserId(ctx context.Context, userId uuid.UUID) (resp entity.Water, err error) {
-	start, end := timex.GetDateForADayUnixMillisecond(time.Now().UnixMilli())
+func (r *repo) GetWaterByUserId(ctx context.Context, userId uuid.UUID, y, m, d int) (resp entity.Water, err error) {
+	t := time.Date(y, time.Month(m), d, 0, 0, 0, 0, time.Local)
+	start, end := timex.GetDateForADayUnixMillisecond(t.UnixMilli())
 	resp, err = r.preparedQuery.GetWaterByUserId(ctx, entity.GetWaterByUserIdParams{
 		UserID:      userId,
 		CreatedAt:   start,
