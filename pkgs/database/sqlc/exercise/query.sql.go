@@ -212,7 +212,7 @@ func (q *Queries) FetchCategories(ctx context.Context) ([]ExerciseCategory, erro
 const fetchExerciseByCategoryId = `-- name: FetchExerciseByCategoryId :many
 SELECT id, subject FROM exercise
 WHERE category_id = ? AND (user_id = ? OR user_id IS NULL)
-ORDER BY user_id IS NULL DESC
+ORDER BY user_id IS NOT NULL DESC
 `
 
 type FetchExerciseByCategoryIdParams struct {
