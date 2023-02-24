@@ -1,11 +1,12 @@
 package user
 
 var (
-	ErrEmailAlreadyExists    error = &errEmailAlreadyExists{}
-	ErrNicknameAlreadyExists error = &errNicknameAlreadyExists{}
-	ErrUserNotFound          error = &errUserNotFound{}
-	ErrNoRecordDrink         error = &errNoRecordDrink{}
-	ErrNoBadge               error = &errNoBadge{}
+	ErrEmailAlreadyExists     error = &errEmailAlreadyExists{}
+	ErrNicknameAlreadyExists  error = &errNicknameAlreadyExists{}
+	ErrUserNotFound           error = &errUserNotFound{}
+	ErrNoRecordDrink          error = &errNoRecordDrink{}
+	ErrNoBadge                error = &errNoBadge{}
+	ErrDeleteInternalExercise error = &errDeleteInternalExercise{}
 )
 
 type errNoBadge struct{}
@@ -36,4 +37,10 @@ type errNoRecordDrink struct{}
 
 func (e *errNoRecordDrink) Error() string {
 	return "no record of drinking water"
+}
+
+type errDeleteInternalExercise struct{}
+
+func (e *errDeleteInternalExercise) Error() string {
+	return "cannot delete the default exercise"
 }

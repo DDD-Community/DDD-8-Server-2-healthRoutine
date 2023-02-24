@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"database/sql"
 	"errors"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -48,6 +49,8 @@ func (h *Handler) deleteExercise(c *fiber.Ctx) error {
 		err = response.ErrNotMatchUserId
 		logger.Error(err)
 		return response.ErrorResponse(c, err, nil)
+	case errors.Is(err, sql.ErrNoRows):
+		err = response.ErrDeleteInternalExercise
 	}
 
 	return response.ErrorResponse(c, err, func(err error) {
