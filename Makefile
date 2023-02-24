@@ -4,8 +4,8 @@ SQLC_CMD := $(GO_BIN_PATH)/sqlc
 
 install:
 	go mod download all
-	go get -d github.com/kyleconroy/sqlc/cmd/sqlc@v1.16.0
-	go install github.com/kyleconroy/sqlc/cmd/sqlc@v1.16.0
+	go get -d github.com/kyleconroy/sqlc/cmd/sqlc@v1.17.2
+	go install github.com/kyleconroy/sqlc/cmd/sqlc@v1.17.2
 
 install-oas-mac:
 	brew install openapi-generator
