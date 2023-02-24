@@ -93,7 +93,7 @@ func (h *Handler) createExercise(c *fiber.Ctx) error {
 		Subject:    binder.Subject,
 	}
 
-	err = h.useCase.CreateExerciseUseCase.Use(c.Context(), in)
+	resp, err := h.useCase.CreateExerciseUseCase.Use(c.Context(), in)
 	if err != nil {
 		return response.ErrorResponse(c, err, func(err error) {
 			logger.Error("in", in)
@@ -101,7 +101,13 @@ func (h *Handler) createExercise(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(http.StatusCreated).JSON(controller.NewResponseBody(http.StatusCreated))
+	var res struct {
+		Id int64 `json:"id"`
+	}
+
+	res.Id = resp
+
+	return c.Status(http.StatusCreated).JSON(controller.NewResponseBody(http.StatusCreated, res))
 }
 
 func (h *Handler) createExerciseHistory(c *fiber.Ctx) error {

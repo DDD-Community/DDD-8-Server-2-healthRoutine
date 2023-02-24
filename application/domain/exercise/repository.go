@@ -21,7 +21,7 @@ type Repository interface {
 		exerciseId int64,
 		weight, reps, set int32) error
 	GetExerciseById(ctx context.Context, id int64) (entity.Exercise, error)
-	CreateExercise(ctx context.Context, userId *uuid.UUID, categoryId int64, subject string) error
+	CreateExercise(ctx context.Context, userId *uuid.UUID, categoryId int64, subject string) (int64, error)
 	DeleteExercise(ctx context.Context, id int64, userId uuid.UUID) error
 	FetchExerciseByCategoryId(ctx context.Context, userId uuid.UUID, categoryId int64) ([]ExerciseModel, error)
 	FetchByDateTime(ctx context.Context, userId uuid.UUID, year, month int) (resp []entity.FetchByDateTimeRow, err error)

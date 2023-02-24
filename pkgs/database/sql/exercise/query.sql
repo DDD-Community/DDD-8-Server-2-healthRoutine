@@ -1,7 +1,7 @@
 -- name: Create :exec
 INSERT INTO health(id, user_id, exercise_id, weight, reps, `set`, created_at) VALUES (?,?,?,?,?,?,?);
 
--- name: CreateExercise :exec
+-- name: CreateExercise :execlastid
 INSERT INTO exercise(id, subject, category_id, user_id) VALUES (?,?,?,?);
 
 -- name: FetchByDateTime :many

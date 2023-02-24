@@ -25,7 +25,7 @@ type CreateExerciseParams struct {
 }
 
 type CreateExerciseUseCase interface {
-	Use(ctx context.Context, params CreateExerciseParams) error
+	Use(ctx context.Context, params CreateExerciseParams) (int64, error)
 }
 
 type FetchExerciseResult struct {

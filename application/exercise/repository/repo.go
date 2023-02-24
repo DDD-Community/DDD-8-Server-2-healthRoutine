@@ -60,7 +60,7 @@ func (r *repo) DeleteExercise(ctx context.Context, id int64, userId uuid.UUID) e
 	})
 }
 
-func (r *repo) CreateExercise(ctx context.Context, userId *uuid.UUID, categoryId int64, subject string) error {
+func (r *repo) CreateExercise(ctx context.Context, userId *uuid.UUID, categoryId int64, subject string) (int64, error) {
 	return r.preparedQuery.CreateExercise(ctx, entity.CreateExerciseParams{
 		Subject:    subject,
 		CategoryID: categoryId,

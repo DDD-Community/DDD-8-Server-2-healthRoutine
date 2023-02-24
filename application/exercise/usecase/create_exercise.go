@@ -17,6 +17,6 @@ type createExerciseUseCaseImpl struct {
 	exercise.Repository
 }
 
-func (u *createExerciseUseCaseImpl) Use(ctx context.Context, params exercise.CreateExerciseParams) error {
+func (u *createExerciseUseCaseImpl) Use(ctx context.Context, params exercise.CreateExerciseParams) (int64, error) {
 	return u.Repository.CreateExercise(ctx, params.UserId, params.CategoryId, params.Subject)
 }

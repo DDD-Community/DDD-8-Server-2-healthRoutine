@@ -62,7 +62,7 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) error {
 	return err
 }
 
-const createExercise = `-- name: CreateExercise :exec
+const createExercise = `-- name: CreateExercise :execlastid
 INSERT INTO exercise(id, subject, category_id, user_id) VALUES (?,?,?,?)
 `
 
@@ -73,14 +73,17 @@ type CreateExerciseParams struct {
 	UserID     *uuid.UUID
 }
 
-func (q *Queries) CreateExercise(ctx context.Context, arg CreateExerciseParams) error {
-	_, err := q.exec(ctx, q.createExerciseStmt, createExercise,
+func (q *Queries) CreateExercise(ctx context.Context, arg CreateExerciseParams) (int64, error) {
+	result, err := q.exec(ctx, q.createExerciseStmt, createExercise,
 		arg.ID,
 		arg.Subject,
 		arg.CategoryID,
 		arg.UserID,
 	)
-	return err
+	if err != nil {
+		return 0, err
+	}
+	return result.LastInsertId()
 }
 
 const createOrUpdateWater = `-- name: CreateOrUpdateWater :exec
