@@ -9,6 +9,9 @@ CREATE TABLE exercise (
     category_id BIGINT NOT NULL ,
     user_id CHAR(36) NULL,
     FOREIGN KEY (category_id) REFERENCES exercise_category (id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE health (
@@ -18,7 +21,9 @@ CREATE TABLE health (
     weight SMALLINT NOT NULL DEFAULT 0,
     reps SMALLINT NOT NULL DEFAULT 0,
     `set` SMALLINT NOT NULL DEFAULT 0,
-    created_at BIGINT NOT NULL
+    created_at BIGINT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE CASCADE
 );
 
 CREATE INDEX health_user_id_idx ON health (user_id);
@@ -32,7 +37,9 @@ CREATE TABLE water (
    `date` VARCHAR(15) NOT NULL,
    created_at BIGINT NOT NULL,
    updated_at BIGINT NOT NULL,
-   PRIMARY KEY (user_id, `date`)
+   PRIMARY KEY (user_id, `date`),
+   FOREIGN KEY (user_id) REFERENCES users(id)
+       ON DELETE CASCADE
 );
 
 CREATE INDEX water_user_id_idx ON water (user_id);
