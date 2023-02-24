@@ -14,7 +14,7 @@ var (
 	ErrNicknameAlreadyExist   = NewErrorResponse(http.StatusConflict, "nickname already exists")
 	ErrInvalidContentType     = NewErrorResponse(http.StatusUnsupportedMediaType, "invalid content type")
 	ErrNoBadge                = NewErrorResponse(http.StatusNotFound, "don't have any badge")
-	ErrDeleteInternalExercise = NewErrorResponse(http.StatusNotFound, "cannot delete the default exercise")
+	ErrDeleteInternalExercise = NewErrorResponse(http.StatusBadRequest, "cannot delete the default exercise")
 
 	ErrCharacterLimit = NewErrorResponse(http.StatusBadRequest, "20 character limit error")
 	ErrNotMatchUserId = NewErrorResponse(http.StatusBadRequest, "user id doesn't match")
