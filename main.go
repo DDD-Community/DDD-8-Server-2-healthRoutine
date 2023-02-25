@@ -74,11 +74,16 @@ func main() {
 	controller.BindUserHandler(app, userUseCase)
 	controller2.BindExerciseHandler(app, exerciseUseCase)
 
-	go internal.StartScheduler(internal.SchedulerParams{
-		UserRepo:     userRepo,
-		ExerciseRepo: exerciseRepo,
-		SQSClient:    defaultSQS,
-	})
+	go func() {
+		err := internal.StartScheduler(internal.SchedulerParams{
+			UserRepo:     userRepo,
+			ExerciseRepo: exerciseRepo,
+			SQSClient:    defaultSQS,
+		})
+		if err != nil {
+			log.Println(err)
+		}
+	}()
 
 	// 개인정보취급방침 템플릿
 	app.Get("/privacy", func(ctx *fiber.Ctx) error {

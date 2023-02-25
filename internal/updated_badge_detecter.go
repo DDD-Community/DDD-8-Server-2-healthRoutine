@@ -10,6 +10,7 @@ import (
 	"healthRoutine/application/domain/user"
 	"healthRoutine/application/domain/user/enum"
 	"healthRoutine/pkgs/log"
+	"healthRoutine/pkgs/util/dbx"
 	"time"
 )
 
@@ -23,11 +24,15 @@ type SchedulerParams struct {
 	SQSClient    *sqs.Client
 }
 
-func StartScheduler(params SchedulerParams) {
+func StartScheduler(params SchedulerParams) (err error) {
 	ctx := context.Background()
 	s := gocron.NewScheduler(time.UTC)
-	s.Every(updateCycle).Second().Do(task, ctx, params.UserRepo, params.ExerciseRepo, params.SQSClient)
+	if _, err = s.Every(updateCycle).Second().Do(task, ctx, params.UserRepo, params.ExerciseRepo, params.SQSClient); err != nil {
+		return
+	}
+
 	s.StartBlocking()
+	return
 }
 
 func task(
@@ -81,10 +86,9 @@ func task(
 		}
 
 		err = userRepo.CreateBadge(ctx, userId, badgeId)
-		if err != nil {
-			logger.Error("failed to create badge")
-			logger.Error(err)
-		} else {
+		mysqlErr := dbx.UnwrapMySQLError(err)
+		switch {
+		case err == nil || mysqlErr.Number == dbx.MySQLErrCodeDuplicateEntity:
 			_, err = sqsCli.DeleteMessage(ctx, &sqs.DeleteMessageInput{
 				QueueUrl:      aws.String("https://sqs.ap-northeast-2.amazonaws.com/692043099242/create_history_or_drink_queue"),
 				ReceiptHandle: v.ReceiptHandle,
@@ -93,6 +97,9 @@ func task(
 				logger.Error("failed to delete message")
 				logger.Error(err)
 			}
+		case err != nil:
+			logger.Error("failed to create badge")
+			logger.Error(err)
 		}
 	}
 
