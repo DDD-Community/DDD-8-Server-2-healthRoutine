@@ -7,11 +7,11 @@ INSERT INTO exercise(id, subject, category_id, user_id) VALUES (?,?,?,?);
 -- name: FetchByDateTime :many
 SELECT
     COUNT(exercise_id) AS counts,
-    DATE_FORMAT(FROM_UNIXTIME(created_at/1000), '%d') AS day
+    DATE_FORMAT(FROM_UNIXTIME(created_at/1000), '%d') AS date
 FROM health
 WHERE user_id = ? AND created_at BETWEEN ? AND ?
-GROUP BY day
-ORDER BY day;
+GROUP BY date
+ORDER BY date;
 
 -- name: GetTodayExerciseCount :one
 SELECT COUNT(exercise_id) AS count FROM health
@@ -62,4 +62,3 @@ WHERE user_id = ?;
 -- name: CountDrinkHistoryByUserId :one
 SELECT COUNT(user_id) AS drink_count FROM water
 WHERE user_id = ?;
-

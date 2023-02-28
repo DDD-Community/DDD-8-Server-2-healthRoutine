@@ -144,11 +144,11 @@ func (q *Queries) DeleteHealth(ctx context.Context, id uuid.UUID) error {
 const fetchByDateTime = `-- name: FetchByDateTime :many
 SELECT
     COUNT(exercise_id) AS counts,
-    DATE_FORMAT(FROM_UNIXTIME(created_at/1000), '%d') AS day
+    DATE_FORMAT(FROM_UNIXTIME(created_at/1000), '%d') AS date
 FROM health
 WHERE user_id = ? AND created_at BETWEEN ? AND ?
-GROUP BY day
-ORDER BY day
+GROUP BY date
+ORDER BY date
 `
 
 type FetchByDateTimeParams struct {
@@ -159,7 +159,7 @@ type FetchByDateTimeParams struct {
 
 type FetchByDateTimeRow struct {
 	Counts int64
-	Day    string
+	Date   string
 }
 
 func (q *Queries) FetchByDateTime(ctx context.Context, arg FetchByDateTimeParams) ([]FetchByDateTimeRow, error) {
@@ -171,7 +171,7 @@ func (q *Queries) FetchByDateTime(ctx context.Context, arg FetchByDateTimeParams
 	var items []FetchByDateTimeRow
 	for rows.Next() {
 		var i FetchByDateTimeRow
-		if err := rows.Scan(&i.Counts, &i.Day); err != nil {
+		if err := rows.Scan(&i.Counts, &i.Date); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

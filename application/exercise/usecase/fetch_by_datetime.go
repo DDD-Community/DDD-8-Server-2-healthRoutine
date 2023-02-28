@@ -51,7 +51,7 @@ func (u *fetchByDatetimeUseCaseImpl) Use(ctx context.Context, userId uuid.UUID, 
 	for _, days := range daysInMonth {
 		match := false
 		for _, v := range resp {
-			day, _ := strconv.Atoi(v.Day)
+			day, _ := strconv.Atoi(v.Date)
 			if int(days) == day {
 				res = append(res, exercise.FetchByDatetimeDetail{
 					Day:           day,
@@ -64,23 +64,31 @@ func (u *fetchByDatetimeUseCaseImpl) Use(ctx context.Context, userId uuid.UUID, 
 			}
 		}
 		var level int32
-		isFutureDays := false
-		if time.Now().Day() < int(days) {
+		var isFutureDays = false
+
+		//TODO: timex 로 옮겨야함
+		locale, _ := time.LoadLocation("Asia/Seoul")
+		h := time.Now().Add(time.Hour * 9).Hour()
+		m := time.Now().Add(time.Hour * 9).Minute()
+		nowDate := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), h, m, 0, 0, locale)
+		requestDate := time.Date(year, time.Month(month), int(days), 0, 0, 0, 0, locale)
+
+		if nowDate.UnixMilli() < requestDate.UnixMilli() {
 			isFutureDays = true
 		}
-		if match == false {
-			if !isFutureDays {
-				level = 1
-			} else {
-				level = 0
-			}
-			res = append(res, exercise.FetchByDatetimeDetail{
-				Day:           int(days),
-				TotalExercise: 0,
-				Level:         level,
-				IsFutureDays:  isFutureDays,
-			})
+
+		if !match && !isFutureDays {
+			level = 1
+		} else {
+			level = 0
 		}
+
+		res = append(res, exercise.FetchByDatetimeDetail{
+			Day:           int(days),
+			TotalExercise: 0,
+			Level:         level,
+			IsFutureDays:  isFutureDays,
+		})
 	}
 
 	nickname, err := u.userRepo.GetNicknameById(ctx, userId)
@@ -104,8 +112,6 @@ func (u *fetchByDatetimeUseCaseImpl) Use(ctx context.Context, userId uuid.UUID, 
 		WelcomeMessage: welcomeMessage,
 		Data:           res,
 	}
-
-	logger.Debug(result)
 
 	return
 }

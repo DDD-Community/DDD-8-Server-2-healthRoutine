@@ -50,4 +50,4 @@ DELETE FROM users WHERE id = ?;
 SELECT NOT EXISTS(
     SELECT * FROM badge_users
     WHERE users_id = ? AND badge_id = ?
-)
+);
