@@ -15,6 +15,7 @@ import (
 	"healthRoutine/pkgs/middlewares"
 	"healthRoutine/pkgs/util"
 	"net/http"
+	"time"
 )
 
 type Handler struct {
@@ -194,7 +195,10 @@ func (h *Handler) fetchTodayExercise(c *fiber.Ctx) error {
 	defer logger.Sync()
 
 	var binder struct {
-		Time int64 `json:"-" xml:"-" query:"time"`
+		Time  int64 `json:"-" xml:"-" query:"time"`
+		Year  int   `json:"-" xml:"-" query:"year"`  // optional
+		Month int   `json:"-" xml:"-" query:"month"` // optional
+		Day   int   `json:"-" xml:"-" query:"day"`   // optional
 	}
 
 	if err := c.QueryParser(&binder); err != nil {
@@ -207,7 +211,14 @@ func (h *Handler) fetchTodayExercise(c *fiber.Ctx) error {
 		return response.ErrUnauthorized
 	}
 
-	resp, err := h.useCase.FetchTodayExerciseByUserIdUseCase.Use(c.Context(), userId, binder.Time)
+	var date int64
+	if binder.Time == 0 {
+		date = time.Date(binder.Year, time.Month(binder.Month), binder.Day, time.Now().Hour(), time.Now().Minute(), 0, 0, time.Local).UnixMilli()
+	} else {
+		date = binder.Time
+	}
+
+	resp, err := h.useCase.FetchTodayExerciseByUserIdUseCase.Use(c.Context(), userId, date)
 	switch {
 	case err == nil:
 		return c.Status(http.StatusOK).JSON(controller.NewResponseBody(http.StatusOK, fetchTodayExerciseResultToData(resp)))
