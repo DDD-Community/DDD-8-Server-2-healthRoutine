@@ -77,18 +77,19 @@ func (u *fetchByDatetimeUseCaseImpl) Use(ctx context.Context, userId uuid.UUID, 
 			isFutureDays = true
 		}
 
-		if !match && !isFutureDays {
-			level = 1
-		} else {
-			level = 0
+		if !match {
+			if !isFutureDays {
+				level = 1
+			} else {
+				level = -1
+			}
+			res = append(res, exercise.FetchByDatetimeDetail{
+				Day:           int(days),
+				TotalExercise: 0,
+				Level:         level,
+				IsFutureDays:  isFutureDays,
+			})
 		}
-
-		res = append(res, exercise.FetchByDatetimeDetail{
-			Day:           int(days),
-			TotalExercise: 0,
-			Level:         level,
-			IsFutureDays:  isFutureDays,
-		})
 	}
 
 	nickname, err := u.userRepo.GetNicknameById(ctx, userId)
