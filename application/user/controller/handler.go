@@ -67,7 +67,7 @@ func (h *Handler) signUp(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(http.StatusCreated).JSON(ResponseByHttpStatus(http.StatusCreated, domainModelToSignUpResp(resp)))
+	return c.Status(http.StatusCreated).JSON(NewResponseBody(http.StatusCreated, domainModelToSignUpResp(resp)))
 }
 
 func (h *Handler) signIn(c *fiber.Ctx) error {
@@ -97,7 +97,7 @@ func (h *Handler) signIn(c *fiber.Ctx) error {
 		})
 	}
 
-	res := ResponseByHttpStatus(http.StatusOK, domainModelToSignInResp(resp, token))
+	res := NewResponseBody(http.StatusOK, domainModelToSignInResp(resp, token))
 
 	return c.Status(http.StatusOK).JSON(res)
 }
@@ -128,7 +128,7 @@ func (h *Handler) checkEmailValidation(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(http.StatusOK).JSON(ResponseByHttpStatus(http.StatusOK))
+	return c.Status(http.StatusOK).JSON(NewResponseBody(http.StatusOK))
 }
 
 func (h *Handler) getProfile(c *fiber.Ctx) error {
@@ -153,7 +153,7 @@ func (h *Handler) getProfile(c *fiber.Ctx) error {
 
 	res := domainModelToProfileResp(resp)
 
-	return c.Status(http.StatusOK).JSON(ResponseByHttpStatus(http.StatusOK, res))
+	return c.Status(http.StatusOK).JSON(NewResponseBody(http.StatusOK, res))
 
 }
 

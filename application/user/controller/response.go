@@ -31,9 +31,3 @@ func NewResponseBody(status int, result ...any) any {
 
 	return res
 }
-
-// ResponseByHttpStatus
-// Deprecated: 레거시 코드
-func ResponseByHttpStatus(status int, result ...interface{}) any {
-	return NewResponseBody(status, result...)
-}
