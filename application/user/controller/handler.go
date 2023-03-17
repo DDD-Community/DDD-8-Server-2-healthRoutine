@@ -109,10 +109,10 @@ func (h *Handler) checkEmailValidation(c *fiber.Ctx) error {
 	var binder struct {
 		Email string `json:"email" xml:"-" validate:"required"`
 	}
-	validateErrors := util.ValidateStruct(&binder) // TODO: validator 분리 필요
 	if err := c.BodyParser(&binder); err != nil {
 		return response.ErrorResponse(c, err, nil)
 	}
+	validateErrors := util.ValidateStruct(&binder) // TODO: validator 분리 필요
 	if validateErrors != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(validateErrors)
 	}
