@@ -32,17 +32,17 @@ UNIQUE KEY (users_id, badge_id)
 CREATE INDEX badge_users_users_id_idx ON badge_users (users_id);
 CREATE INDEX badge_users_created_at_idx ON badge_users (created_at);
 
-INSERT INTO badge (subject)
+INSERT INTO badge (subject, sub)
 VALUES
-    ('운동의 시작'),
-    ('운동의 기쁨'),
-    ('운동 홀릭'),
-    ('운동 마스터'),
-    ('운동 챔피언'),
-    ('성실 주니어'),
-    ('성실 프로'),
-    ('성실 마스터'),
-    ('성실 챔피언'),
-    ('꿀컵꿀컵'),
-    ('벌컵벌컵'),
-    ('물 먹는 하마');
+    ('운동의 시작' , 'exerciseStart'),
+    ('운동의 기쁨' , 'exerciseHappy'),
+    ('운동 홀릭', 'exerciseHolic'),
+    ('운동 마스터', 'exerciseMaster'),
+    ('운동 챔피언', 'exerciseChampion'),
+    ('성실 주니어', 'sincerityJunior'),
+    ('성실 프로', 'sincerityPro'),
+    ('성실 마스터', 'sincerityMaster'),
+    ('성실 챔피언', 'sincerityChampion'),
+    ('꿀컵꿀컵', 'drinkHoneyHoney'),
+    ('벌컵벌컵', 'drinkBulkUpBulkUp'),
+    ('물 먹는 하마', 'drinkHippo');
