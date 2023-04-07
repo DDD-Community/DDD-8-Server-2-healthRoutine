@@ -33,5 +33,20 @@ func sortByObjectLastModified(ctx context.Context, s3Cli *s3.Client, userId uuid
 		return res[keys[i]].Before(res[keys[j]])
 	})
 
-	return keys[len(keys)-1], err
+	if len(keys) > 1 {
+		if lerr := deletePreviousObject(ctx, s3Cli, keys[len(keys)-2]); err != nil {
+			return "", lerr
+		}
+	}
+
+	return keys[len(keys)-1], nil
+}
+
+func deletePreviousObject(ctx context.Context, s3Cli *s3.Client, objectKey string) (err error) {
+	_, err = s3Cli.DeleteObject(ctx, &s3.DeleteObjectInput{
+		Bucket: aws.String(profileTempBucketName),
+		Key:    aws.String(objectKey),
+	})
+
+	return
 }

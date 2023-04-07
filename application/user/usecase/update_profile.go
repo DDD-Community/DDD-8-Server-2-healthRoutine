@@ -34,15 +34,20 @@ func (u *updateProfileUseCaseImpl) Use(ctx context.Context, params user.UpdatePr
 	logger := u.log()
 	defer logger.Sync()
 
-	checkNickname, err := u.Repository.CheckExistsByNickname(ctx, params.Nickname)
-	switch {
-	case err != nil:
-		logger.Error(err)
-		return
-	case checkNickname != false:
-		err = user.ErrNicknameAlreadyExists
-		logger.Error("nickname already exists")
-		return
+	model, _ := u.Repository.GetById(ctx, params.Id)
+	if model.Nickname != params.Nickname {
+		logger.Info("start check exists nickname")
+		exists, ferr := u.Repository.CheckExistsByNickname(ctx, params.Nickname)
+		if ferr != nil {
+			logger.Error(ferr)
+			return
+		}
+
+		if exists {
+			err = user.ErrNicknameAlreadyExists
+			logger.Error("nickname already exists")
+			return
+		}
 	}
 
 	logger.Info("start sorting latest file")
