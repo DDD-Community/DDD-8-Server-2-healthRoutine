@@ -49,6 +49,11 @@ func task(
 	})
 	if err != nil {
 		logger.Error(err)
+		return
+	}
+
+	if len(resp.Messages) == 0 {
+		return
 	}
 
 	for _, v := range resp.Messages {
@@ -57,7 +62,7 @@ func task(
 		var badgeId []int64
 		countExercise, cerr := exerciseRepo.CountExerciseHistoryByUserId(ctx, userId)
 		if cerr != nil {
-			logger.Error(err)
+			logger.Error(cerr)
 		}
 
 		countDrink, cerr := exerciseRepo.CountDrinkHistoryByUserId(ctx, userId)
@@ -86,19 +91,24 @@ func task(
 		}
 
 		err = userRepo.CreateBadge(ctx, userId, badgeId)
-		mysqlErr := dbx.UnwrapMySQLError(err)
-		switch {
-		case err == nil || mysqlErr.Number == dbx.MySQLErrCodeDuplicateEntity:
-			_, err = sqsCli.DeleteMessage(ctx, &sqs.DeleteMessageInput{
-				QueueUrl:      aws.String("https://sqs.ap-northeast-2.amazonaws.com/692043099242/create_history_or_drink_queue"),
-				ReceiptHandle: v.ReceiptHandle,
-			})
-			if err != nil {
-				logger.Error("failed to delete message")
+		if err != nil {
+			mysqlErr := dbx.UnwrapMySQLError(err)
+			switch {
+			case mysqlErr != nil && mysqlErr.Number == dbx.MySQLErrCodeDuplicateEntity:
+				logger.Info("badge already exists for user: ", userId)
+			default:
+				logger.Error("failed to create badge for user: ", userId)
 				logger.Error(err)
+				return
 			}
-		case err != nil:
-			logger.Error("failed to create badge")
+		}
+
+		_, err = sqsCli.DeleteMessage(ctx, &sqs.DeleteMessageInput{
+			QueueUrl:      aws.String("https://sqs.ap-northeast-2.amazonaws.com/692043099242/create_history_or_drink_queue"),
+			ReceiptHandle: v.ReceiptHandle,
+		})
+		if err != nil {
+			logger.Error("failed to delete message")
 			logger.Error(err)
 		}
 	}
